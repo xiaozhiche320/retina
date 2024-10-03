@@ -154,10 +154,11 @@ func (t *TelemetryClient) trackWarning(err error, msg string) {
 
 func (t *TelemetryClient) heartbeat(ctx context.Context) {
 	kernelVersion, err := KernelVersion(ctx)
+	fmt.Println("kernelversion was called from heartbeat")
 	if err != nil {
 		t.trackWarning(err, "failed to get kernel version")
 	}
-
+	fmt.Println("from telemetry output", kernelVersion)
 	props := map[string]string{
 		kernelversion: kernelVersion,
 	}
@@ -268,15 +269,22 @@ func (t *TelemetryClient) StopPerf(counter *PerformanceCounter) {
 }
 
 func (t *TelemetryClient) Heartbeat(ctx context.Context, heartbeatInterval time.Duration) {
+	fmt.Println("ticker created in Heartbeat")
 	ticker := time.NewTicker(heartbeatInterval) // TODOL: make configurable
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
+			fmt.Println("heartbeat ctx.done was triggered", time.Now())
 			return
 		case <-ticker.C:
+			fmt.Println("within telemetry package, heartbeat triggered at: ", time.Now())
 			t.heartbeat(ctx)
+			// default:
+			// 	fmt.Println("default case triggered")
+			// 	t.heartbeat(ctx)
+			// 	time.Sleep(heartbeatInterval)
 		}
 	}
 }

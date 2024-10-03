@@ -64,7 +64,7 @@ logLevel: debug
 enabledPlugin_linux: '["dropreason","packetforward","linuxutil","dns"]'
 enabledPlugin_win: '["hnsstats"]'
 
-enableTelemetry: false
+enableTelemetry: true
 
 # Interval, in seconds, to scrape/publish metrics.
 metricsInterval: 10

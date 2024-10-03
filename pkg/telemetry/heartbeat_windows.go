@@ -17,5 +17,6 @@ func KernelVersion(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to get windows kernel version: %s", string(output))
 	}
+	println("heartbeat windows kernel version from underlying: ", strings.TrimSuffix(string(output), "\r\n"))
 	return strings.TrimSuffix(string(output), "\r\n"), nil
 }

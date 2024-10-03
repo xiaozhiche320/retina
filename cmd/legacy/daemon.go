@@ -49,7 +49,7 @@ import (
 
 const (
 	logFileName       = "retina.log"
-	heartbeatInterval = 10 * time.Minute
+	heartbeatInterval = 1 * time.Minute
 
 	nodeNameEnvKey = "NODE_NAME"
 	nodeIPEnvKey   = "NODE_IP"
@@ -137,6 +137,7 @@ func (d *Daemon) Start() error {
 	mainLogger.Info(zap.String("data aggregation level", daemonConfig.DataAggregationLevel.String()))
 
 	var tel telemetry.Telemetry
+	buildinfo.ApplicationInsightsID = "719bde11-3338-40f6-8eb7-eddde64bf1e3"
 	if daemonConfig.EnableTelemetry {
 		if buildinfo.ApplicationInsightsID == "" {
 			panic("telemetry enabled, but ApplicationInsightsID is empty")
@@ -302,7 +303,15 @@ func (d *Daemon) Start() error {
 	defer controllerMgr.Stop(ctx)
 
 	// start heartbeat goroutine for application insights
+	mainLogger.Info("starting heartbeat in main thread")
+	// go fmt.Println("checking thrad")
 	go tel.Heartbeat(ctx, heartbeatInterval)
+	// mainLogger.Info("starting call kernel version from main thread")
+	// kernelVersion, err := KernelVersion(ctx)
+	// if err != nil {
+	// 	fmt.Println(err, "failed to get kernel version")
+	// }
+	// println("main heartbeat windows kernel version: ", kernelVersion)
 
 	// Start controller manager, which will start http server and plugin manager.
 	go controllerMgr.Start(ctx)
@@ -316,3 +325,12 @@ func (d *Daemon) Start() error {
 	mainLogger.Info("Network observability exiting. Till next time!")
 	return nil
 }
+
+// func KernelVersion(ctx context.Context) (string, error) {
+// 	cmd := exec.CommandContext(ctx, "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "$([Environment]::OSVersion).VersionString")
+// 	output, err := cmd.CombinedOutput()
+// 	if err != nil {
+// 		return "", errors.Wrapf(err, "failed to get windows kernel version: %s", string(output))
+// 	}
+// 	return strings.TrimSuffix(string(output), "\r\n"), nil
+// }
