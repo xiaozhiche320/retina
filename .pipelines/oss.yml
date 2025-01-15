@@ -4,11 +4,12 @@ parameters:
 - name: retinaOSSRepoName #not sure if really need but put for now, YEAH NEED BUT pass this variable for githuboss in 'main'
   type: string
 
-variables:
-  APP_INSIGHTS_ID: "99c62452-029a-4341-bc0f-e689b7473601" 
+
 stages:
   - stage: build
     displayName: Linux Buildx
+    variables:
+      APP_INSIGHTS_ID: "99c62452-029a-4341-bc0f-e689b7473601" 
     jobs:
       - job: prepare
         displayName: Setup
