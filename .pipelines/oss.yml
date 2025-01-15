@@ -8,10 +8,14 @@ stages:
   - stage: setup
     displayName: Linux Buildx
     jobs:
-      - job: env
+      - job: prepare
         displayName: Setup
         pool:
           type: linux
+        variables:
+          ob_outputDirectory: $(Build.SourcesDirectory)/out
+          OB_build_container: true
+          ob_git_checkout: true
         steps:
           # - checkout: self
           #这里的问题是我不知道在哪里所以我想遵循amilcar的原则
