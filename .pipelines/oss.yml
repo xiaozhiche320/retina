@@ -5,7 +5,7 @@ parameters:
   type: string
 
 stages:
-  - stage: setup
+  - stage: build
     displayName: Linux Buildx
     jobs:
       - job: prepare
