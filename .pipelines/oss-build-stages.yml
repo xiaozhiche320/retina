@@ -1,0 +1,287 @@
+parameters:
+- name: pipelineWorkspace
+  type: string
+- name: retinaEnterpriseRepoName
+  type: string
+
+stages:
+  - stage: build
+    displayName: Build Images
+    jobs:
+    - job: prepare
+      pool:
+        type: linux
+      variables:
+        ob_outputDirectory: $(Build.SourcesDirectory)/out
+        OB_build_container: true
+        ob_git_checkout: true
+      steps:
+        - checkout: ${{ parameters.retinaEnterpriseRepoName }}
+
+        - script: |
+            cd ${{ parameters.retinaEnterpriseRepoName }}
+
+            if [[ -z $(git status -s) ]]; then
+              if [[ -n $(git describe --exact-match --tags HEAD 2>/dev/null) ]]; then
+                echo "the current folder is clean and has a tag. using prod AI $(PROD_AI) for the build."
+                APP_INSIGHTS_ID=$(PROD_AI)
+              else
+                echo "the current folder is clean but does not have a tag. using test AI $(TEST_AI) for the build."
+                APP_INSIGHTS_ID=$(TEST_AI)
+              fi
+            else
+              echo "the current folder is not clean. using test AI $(TEST_AI) for the build."
+              APP_INSIGHTS_ID=$(TEST_AI)
+            fi
+
+            if [[ -z $(git tag --points-at HEAD) ]]; then
+                echo "The current commit doesn't have a tag. Using the commit hash as the version for Linux images."
+                VERSION=$(git rev-parse --short HEAD)
+                echo "The current commit doesn't have a tag. Using the last tag and commit hash as the version for Windows Builder image."
+                WINDOWS_VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)
+            else
+                echo "The current commit has a tag. Using the tag as the version for Linux images."
+                VERSION=$(git tag --points-at HEAD)
+                WINDOWS_VERSION=$(git tag --points-at HEAD)
+            fi
+
+            echo "##vso[task.setvariable variable=TAG_VERSION;isOutput=true;]$VERSION"
+            echo "##vso[task.setvariable variable=APP_INSIGHTS_ID;isOutput=true;]$APP_INSIGHTS_ID"
+            echo "##vso[task.setvariable variable=WINDOWS_VERSION;isOutput=true;]$WINDOWS_VERSION"
+          name: setVariables
+          displayName: "Defining APP_INSIGHTS_ID and VERSION"
+
+        - task: CopyFiles@2
+          displayName: Prepare sources for docker build
+          inputs:
+            SourceFolder: $(Build.SourcesDirectory)/${{ parameters.retinaEnterpriseRepoName }}
+            TargetFolder: '$(Build.SourcesDirectory)/out/${{ parameters.retinaEnterpriseRepoName }}'
+
+    - job: agentLinuxAmd64ImageBuild
+      displayName: Agent Linux amd64 Image Build
+      dependsOn: prepare
+      condition: succeeded()
+      pool:
+        type: docker
+        os: linux
+      variables:
+        TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+        APP_INSIGHTS_ID: $[ dependencies.prepare.outputs['setVariables.APP_INSIGHTS_ID'] ]
+        ob_git_checkout: true
+      steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Download Artifacts'
+          inputs:
+            targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+            artifact: drop_build_prepare
+        - task: onebranch.pipeline.imagebuildinfo@1
+          inputs:
+            buildkit: 1
+            dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/agent/Dockerfile.linux
+            arguments: "--platform linux/amd64 --build-arg HUBBLE_VERSION=v1.16.3 --build-arg GOARCH=amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --target controller"
+            dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+            repositoryName: retina-agent-enterprise
+            registry: acndev.azurecr.io
+            compress: true
+            saveImageToPath: retina-agent-enterprise-$(TAG_VERSION)-linux-amd64.tar.gz
+            enable_network: true
+            enable_service_tree_acr_path: false
+            build_tag: $(TAG_VERSION)-linux-amd64
+
+
+
+    - job: agentInitLinuxAmd64ImageBuild
+      displayName: Agent Init Linux amd64 Image Build
+      dependsOn: prepare
+      condition: succeeded()
+      pool:
+        type: docker
+        os: linux
+      variables:
+        TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+        APP_INSIGHTS_ID: $[ dependencies.prepare.outputs['setVariables.APP_INSIGHTS_ID'] ]
+        ob_git_checkout: true
+      steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Download Artifacts'
+          inputs:
+            targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+            artifact: drop_build_prepare
+        - task: onebranch.pipeline.imagebuildinfo@1
+          inputs:
+            buildkit: 1
+            dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/agent/Dockerfile.linux
+            arguments: "--platform linux/amd64 --build-arg GOARCH=amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --target init"
+            dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+            repositoryName: retina-agent-init-enterprise
+            registry: acndev.azurecr.io
+            compress: true
+            saveImageToPath: retina-agent-init-enterprise-$(TAG_VERSION)-linux-amd64.tar.gz
+            enable_network: true
+            enable_service_tree_acr_path: false
+            build_tag: $(TAG_VERSION)-linux-amd64
+
+    - job: operatorLinuxAmd64ImageBuild
+      displayName: Operator Linux amd64 Image Build
+      dependsOn: prepare
+      condition: succeeded()
+      pool:
+        type: docker
+        os: linux
+      variables:
+        TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+        APP_INSIGHTS_ID: $[ dependencies.prepare.outputs['setVariables.APP_INSIGHTS_ID'] ]
+        ob_git_checkout: true
+      steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Download Artifacts'
+          inputs:
+            targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+            artifact: drop_build_prepare
+        - task: onebranch.pipeline.imagebuildinfo@1
+          inputs:
+            buildkit: 1
+            dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/operator/Dockerfile.linux
+            arguments: "--platform linux/amd64 --metadata-file='image-metadata-$$image_name-$(TAG).json'  --build-arg HUBBLE_VERSION=v1.16.3 --build-arg GOARCH=amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --target controller"
+            dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+            repositoryName: retina-operator-enterprise
+            registry: acndev.azurecr.io
+            compress: true
+            saveImageToPath: retina-operator-enterprise-$(TAG_VERSION)-linux-amd64.tar.gz
+            enable_network: true
+            enable_service_tree_acr_path: false
+            build_tag: $(TAG_VERSION)-linux-amd64
+
+    - job: agentLinuxArm64ImageBuild
+      displayName: Agent Linux arm64 Image Build
+      dependsOn: prepare
+      condition: succeeded()
+      pool:
+        type: docker
+        os: linux
+      variables:
+        TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+        APP_INSIGHTS_ID: $[ dependencies.prepare.outputs['setVariables.APP_INSIGHTS_ID'] ]
+        ob_git_checkout: true
+        ob_enable_qemu: true
+      steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Download Artifacts'
+          inputs:
+            targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+            artifact: drop_build_prepare
+        - task: onebranch.pipeline.imagebuildinfo@1
+          inputs:
+            buildkit: 1
+            dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/agent/Dockerfile.linux
+            arguments: "--platform linux/arm64 --build-arg HUBBLE_VERSION=v1.16.3 --build-arg GOARCH=arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --target controller"
+            dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+            repositoryName: retina-agent-enterprise
+            registry: acndev.azurecr.io
+            compress: true
+            saveImageToPath: retina-agent-enterprise-$(TAG_VERSION)-linux-arm64.tar.gz
+            enable_network: true
+            enable_service_tree_acr_path: false
+            build_tag: $(TAG_VERSION)-linux-arm64
+
+    - job: agentInitLinuxArm64ImageBuild
+      displayName: Agent Init Linux arm64 Image Build
+      dependsOn: prepare
+      condition: succeeded()
+      pool:
+        type: docker
+        os: linux
+      variables:
+        TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+        APP_INSIGHTS_ID: $[ dependencies.prepare.outputs['setVariables.APP_INSIGHTS_ID'] ]
+        ob_git_checkout: true
+        ob_enable_qemu: true
+      steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Download Artifacts'
+          inputs:
+            targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+            artifact: drop_build_prepare
+        - task: onebranch.pipeline.imagebuildinfo@1
+          inputs:
+            buildkit: 1
+            dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/agent/Dockerfile.linux
+            arguments: "--platform linux/arm64 --build-arg GOARCH=arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --target init"
+            dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+            repositoryName: retina-agent-init-enterprise
+            registry: acndev.azurecr.io
+            compress: true
+            saveImageToPath: retina-agent-init-enterprise-$(TAG_VERSION)-linux-arm64.tar.gz
+            enable_network: true
+            enable_service_tree_acr_path: false
+            build_tag: $(TAG_VERSION)-linux-arm64
+
+    - job: operatorLinuxArm64ImageBuild
+      displayName: Operator Linux arm64 Image Build
+      dependsOn: prepare
+      condition: succeeded()
+      pool:
+        type: docker
+        os: linux
+      variables:
+        TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+        APP_INSIGHTS_ID: $[ dependencies.prepare.outputs['setVariables.APP_INSIGHTS_ID'] ]
+        ob_git_checkout: true
+        ob_enable_qemu: true
+      steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Download Artifacts'
+          inputs:
+            targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+            artifact: drop_build_prepare
+        - task: onebranch.pipeline.imagebuildinfo@1
+          inputs:
+            buildkit: 1
+            dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/operator/Dockerfile.linux
+            arguments: "--platform linux/arm64 --build-arg HUBBLE_VERSION=v1.16.3 --build-arg GOARCH=arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --target controller"
+            dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+            repositoryName: retina-operator-enterprise
+            registry: acndev.azurecr.io
+            compress: true
+            saveImageToPath: retina-operator-enterprise-$(TAG_VERSION)-linux-arm64.tar.gz
+            enable_network: true
+            enable_service_tree_acr_path: false
+            build_tag: $(TAG_VERSION)-linux-arm64
+
+    - job: builderForWindowsNative
+      displayName: Builder for Windows Navite Image Build
+      dependsOn: prepare
+      condition: succeeded()
+      pool:
+        type: docker
+        os: windows
+      variables:
+        WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.WINDOWS_VERSION'] ]
+        ob_git_checkout: true
+      steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Download Artifacts'
+          inputs:
+            targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+            artifact: drop_build_prepare
+
+        - task: onebranch.pipeline.containercontrol@1
+          displayName: "Login to ACR"
+          inputs:
+            command: login
+            endpoint: $(ACR_SERVICE_CONNECTION)
+
+        - task: onebranch.pipeline.imagebuildinfo@1
+          inputs:
+            dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
+            arguments: "--build-arg VERSION=$(WINDOWS_VERSION) --target builder"
+            dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+            repositoryName: retina-builder
+            registry: acndev.azurecr.io
+            compress: true
+            saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
+            enable_network: true
+            enable_service_tree_acr_path: false
+            build_tag: windows-amd64-$(WINDOWS_VERSION)
+            # enable_acr_push: true
+            # endpoint: $(ACR_SERVICE_CONNECTION)
