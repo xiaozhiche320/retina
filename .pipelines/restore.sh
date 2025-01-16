@@ -56,11 +56,14 @@ mkdir multi_arch_image
 echo "Current directory: $(pwd)"
 ls -l
 
+echo "Contents of Amd64 folder before moving:"
+ls -l ./Amd64/
 # 将 Amd64 文件夹中的内容移动到 multi_arch_image 目录
-mv ../../../../retina-oss-build/Amd64/* ./multi_arch_image/
-
+mv ./Amd64/* ./multi_arch_image/
+echo "Contents of Arm64 folder before moving:"
+ls -l ./Arm64/
 # 将 Arm64 文件夹中的内容移动到 multi_arch_image 目录
-mv ../../../../retina-oss-build/Arm64/* ./multi_arch_image/
+mv ./Arm64/* ./multi_arch_image/
 
 # package the folder output to tar since the rollout parameter only accept a specifc file
 tar -cvf multi_arch_image.tar ./multi_arch_image
