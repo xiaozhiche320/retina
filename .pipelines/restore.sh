@@ -1,11 +1,9 @@
 #!/bin/bash
 # https://ev2docs.azure.net/features/service-artifacts/actions/shell-extensions/overview.html#script-authoring-and-packaging
 # https://msazure.visualstudio.com/Azure-Express/_git/Samples?path=%2FServiceGroupRoot&version=GBmaster
-
 # Debugging information
 echo "Current directory: $(pwd)"
 ls -l
-
 # Check if Shell directory exists
 if [ ! -d "./Shell" ]; then
     echo "Error: Shell directory does not exist."
