@@ -123,7 +123,7 @@ stages:
             inputs:
               buildkit: 1  #stand for buildx
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile
-              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5   #不知道我之后要不要check能不能把他动态 --target=init BUILDX_ACTION=--push"
+              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=init --push"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
               repositoryName: retina-oss-init  #这个是你的image名字一部分，然后也是你自己取得
               registry: ghcr.io/microsoft
@@ -156,7 +156,7 @@ stages:
             inputs:
               buildkit: 1  #stand for buildx
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/operator/Dockerfile
-              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
+              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent --push --drop_build_prepare/${{ parameters.retinaOSSRepoName }}"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
               repositoryName: retina-oss-operator  #这个是你的image名字一部分，然后也是你自己取得
               registry: ghcr.io/microsoft
