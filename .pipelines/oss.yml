@@ -90,7 +90,7 @@ stages:
                 # IMAGE_REGISTRY=ghcr.io/microsoft  \
                 # BUILDX_ACTION="-o type=docker,dest=./output/images/$(platform)/$(arch)/retina-$(target)-$VERSION-$(platform)-$(arch).tar""
                 #          image name = cr/path/name:tag
-              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent --push"
+              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} #不确定对不对，和之前那个realpath有关但是
               repositoryName: retina-oss-agent  #这个是你的image名字一部分，然后也是你自己取得
               registry: ghcr.io/microsoft
