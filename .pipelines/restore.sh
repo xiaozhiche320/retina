@@ -21,7 +21,7 @@ echo -n $BUILD_BUILDNUMBER | tee ./EV2Specs/BuildVer.txt
 ARCHS=("Amd64" "Arm64")
 for arch in "${ARCHS[@]}"; do
     mkdir $arch
-
+done
 echo "Current directory: $(pwd)"
 ls -l
 # IMAGE_NAMES=("agentInit" "agent" "operator")
@@ -29,6 +29,7 @@ IMAGE_NAMES=("agent")
 #这个文件夹的名字应该取决于你如何name的pipeline，应该不是UI上的是yaml里的
 for image in "${IMAGE_NAMES[@]}"; do
     ORIGINAL_DIRECTORY="../../../../retina-oss-build/drop_build_${image}Linux${arch}ImageBuild"
+done
 # for file in "$ORIGINAL_DIRECTORY"/*; do
 #     if [[ "$file" == *.tar.gz ]]; then
 #         gunzip $file
