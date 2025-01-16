@@ -47,7 +47,8 @@ stages:
               echo "Tag version is: $TAG"
               echo "##vso[task.setvariable variable=TAG_VERSION;isOutput=true]$TAG"
               echo "after set up the tag version is $(TAG_VERSION)"
-            name: "EnvironmentalVariables"
+                      name: setVariables
+            name: "setVariabless" #你看上面有一个task.setvariable，这个是为了传递变量，所以这个名字是为了传递变量的，不然你pass不过去
             displayName: "Set environmental variables"
             condition: always()
 
@@ -68,14 +69,11 @@ stages:
           type: docker #这里有待考证到底是怎么设置的，我只是抄的，但是我不知道怎么搞的其实
           os: linux
         variables:
-        #这两个主要就是在下面那个arg用，所以你要看你自己需不需要，命名也随意吧，但是你要对应上对应的东西就行，以及下面那个argument实际上就是你的dockerfile make command里面的变量
           TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
           #这里这个可能要改，因为我是固定的，而且之前没有set过这个，但是enterprise是根据之前prepare的id给出的才能，我这个应该在pipeline variable里set
           APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)   #感觉直接这个就可以了 $(APP_INSIGHTS_ID)
           ob_git_checkout: true  #OneBranch Pipelines doesn't clone the repository in the Docker job by default. To access the source code, you need to set the ob_git_checkout job variable:
         steps:
-          - script: |
-              echo "TAG_VERSION is $(TAG_VERSION)"
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Artifacts'
             inputs:
@@ -84,9 +82,7 @@ stages:
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile #这个你要寻找docker file，因为docker 命令需要一个docker file来执行的其实
-              # arguments: "--platform linux/amd64 --build-arg HUBBLE_VERSION=v1.16.3 --build-arg GOARCH=amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --target controller"
-              
+              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile 
               # arguments: "   AGENT_TARGETS=$(target) \
                 # TAG=$(make version) \
                 # APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) \
@@ -94,7 +90,7 @@ stages:
                 # PLATFORM=$(platform)/$(arch) \
                 # IMAGE_REGISTRY=ghcr.io/microsoft  \
                 # BUILDX_ACTION="-o type=docker,dest=./output/images/$(platform)/$(arch)/retina-$(target)-$VERSION-$(platform)-$(arch).tar""
-#          image name = cr/path/name:tag
+                #          image name = cr/path/name:tag
               arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent --push"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} #不确定对不对，和之前那个realpath有关但是
               repositoryName: retina-oss-agent  #这个是你的image名字一部分，然后也是你自己取得
@@ -106,298 +102,298 @@ stages:
               build_tag: $(TAG_VERSION)-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
               saveMetadataToPath: image-metadata-retina-agent-$(TAG_VERSION).json  #有待考证
 
-      - job: agentInitLinuxAmd64ImageBuild
-        displayName: Agent Init Linux amd64 Image Build
-        dependsOn: prepare
-        condition: succeeded()
-        pool:
-          type: docker
-          os: linux
-        variables:
-          TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ob_git_checkout: true
-        steps:
-          - script: |
-              echo "TAG_VERSION is $(TAG_VERSION)"
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts'
-            inputs:
-              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
-              artifact: drop_build_prepare
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile
-              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=31be7cb --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=init"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
-              repositoryName: retina-oss-init  #这个是你的image名字一部分，然后也是你自己取得
-              registry: ghcr.io/xiaozhiche320
-              compress: true
-              saveImageToPath: retina-init-31be7cb-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: 31be7cb-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-retina-init-31be7cb.json  #有待考证
+      # - job: agentInitLinuxAmd64ImageBuild
+      #   displayName: Agent Init Linux amd64 Image Build
+      #   dependsOn: prepare
+      #   condition: succeeded()
+      #   pool:
+      #     type: docker
+      #     os: linux
+      #   variables:
+      #     TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+      #     APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+      #     ob_git_checkout: true
+      #   steps:
+      #     - script: |
+      #         echo "TAG_VERSION is $(TAG_VERSION)"
+      #     - task: DownloadPipelineArtifact@2
+      #       displayName: 'Download Artifacts'
+      #       inputs:
+      #         targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+      #         artifact: drop_build_prepare
+      #     - task: onebranch.pipeline.imagebuildinfo@1
+      #       inputs:
+      #         buildkit: 1  #stand for buildx
+      #         dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile
+      #         arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=31be7cb --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=init"
+      #         dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
+      #         repositoryName: retina-oss-init  #这个是你的image名字一部分，然后也是你自己取得
+      #         registry: ghcr.io/xiaozhiche320
+      #         compress: true
+      #         saveImageToPath: retina-init-31be7cb-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+      #         enable_network: true
+      #         enable_service_tree_acr_path: false
+      #         build_tag: 31be7cb-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+      #         saveMetadataToPath: image-metadata-retina-init-31be7cb.json  #有待考证
 
 
-      - job: operatorLinuxAmd64ImageBuild
-        displayName: Operator Linux amd64 Image Build
-        dependsOn: prepare
-        condition: succeeded()
-        pool:
-          type: docker
-          os: linux
-        variables:
-          TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ob_git_checkout: true
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts'
-            inputs:
-              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
-              artifact: drop_build_prepare
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/operator/Dockerfile
-              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent --push"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
-              repositoryName: retina-oss-operator  #这个是你的image名字一部分，然后也是你自己取得
-              registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: retina-operator-$(TAG_VERSION)-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: $(TAG_VERSION)-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-retina-operator-$(TAG_VERSION).json  #有待考证
+      # - job: operatorLinuxAmd64ImageBuild
+      #   displayName: Operator Linux amd64 Image Build
+      #   dependsOn: prepare
+      #   condition: succeeded()
+      #   pool:
+      #     type: docker
+      #     os: linux
+      #   variables:
+      #     TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+      #     APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+      #     ob_git_checkout: true
+      #   steps:
+      #     - task: DownloadPipelineArtifact@2
+      #       displayName: 'Download Artifacts'
+      #       inputs:
+      #         targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+      #         artifact: drop_build_prepare
+      #     - task: onebranch.pipeline.imagebuildinfo@1
+      #       inputs:
+      #         buildkit: 1  #stand for buildx
+      #         dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/operator/Dockerfile
+      #         arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent --push"
+      #         dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
+      #         repositoryName: retina-oss-operator  #这个是你的image名字一部分，然后也是你自己取得
+      #         registry: ghcr.io/microsoft
+      #         compress: true
+      #         saveImageToPath: retina-operator-$(TAG_VERSION)-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+      #         enable_network: true
+      #         enable_service_tree_acr_path: false
+      #         build_tag: $(TAG_VERSION)-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+      #         saveMetadataToPath: image-metadata-retina-operator-$(TAG_VERSION).json  #有待考证
 
 
-      - job: agentLinuxArm64ImageBuild
-        displayName: Agent Linux arm64 Image Build
-        dependsOn: prepare  #换工作
-        condition: succeeded()
-        pool:
-          type: docker #这里有待考证到底是怎么设置的，我只是抄的，但是我不知道怎么搞的其实
-          os: linux
-        variables:
-        #这两个主要就是在下面那个arg用，所以你要看你自己需不需要，命名也随意吧，但是你要对应上对应的东西就行，以及下面那个argument实际上就是你的dockerfile make command里面的变量
-          TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          #这里这个可能要改，因为我是固定的，而且之前没有set过这个，但是enterprise是根据之前prepare的id给出的才能，我这个应该在pipeline variable里set
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ob_git_checkout: true  #OneBranch Pipelines doesn't clone the repository in the Docker job by default. To access the source code, you need to set the ob_git_checkout job variable:
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts'
-            inputs:
-              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare #也要挨着替换吧，所有的prepare都要注意一下,我其实不知道这个dst是怎么来的，这个路径为什么，但是就先这样
-              artifact: drop_build_prepare
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile #这个你要寻找docker file，因为docker 命令需要一个docker file来执行的其实
-              arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} #不确定对不对，和之前那个realpath有关但是
-              repositoryName: retina-oss-agent  #这个是你的image名字一部分，然后也是你自己取得
-              registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: retina-agent-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-retina-agent-$(TAG_VERSION).json  #有待考证
+      # - job: agentLinuxArm64ImageBuild
+      #   displayName: Agent Linux arm64 Image Build
+      #   dependsOn: prepare  #换工作
+      #   condition: succeeded()
+      #   pool:
+      #     type: docker #这里有待考证到底是怎么设置的，我只是抄的，但是我不知道怎么搞的其实
+      #     os: linux
+      #   variables:
+      #   #这两个主要就是在下面那个arg用，所以你要看你自己需不需要，命名也随意吧，但是你要对应上对应的东西就行，以及下面那个argument实际上就是你的dockerfile make command里面的变量
+      #     TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+      #     #这里这个可能要改，因为我是固定的，而且之前没有set过这个，但是enterprise是根据之前prepare的id给出的才能，我这个应该在pipeline variable里set
+      #     APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+      #     ob_git_checkout: true  #OneBranch Pipelines doesn't clone the repository in the Docker job by default. To access the source code, you need to set the ob_git_checkout job variable:
+      #   steps:
+      #     - task: DownloadPipelineArtifact@2
+      #       displayName: 'Download Artifacts'
+      #       inputs:
+      #         targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare #也要挨着替换吧，所有的prepare都要注意一下,我其实不知道这个dst是怎么来的，这个路径为什么，但是就先这样
+      #         artifact: drop_build_prepare
+      #     - task: onebranch.pipeline.imagebuildinfo@1
+      #       inputs:
+      #         buildkit: 1  #stand for buildx
+      #         dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile #这个你要寻找docker file，因为docker 命令需要一个docker file来执行的其实
+      #         arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
+      #         dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} #不确定对不对，和之前那个realpath有关但是
+      #         repositoryName: retina-oss-agent  #这个是你的image名字一部分，然后也是你自己取得
+      #         registry: ghcr.io/microsoft
+      #         compress: true
+      #         saveImageToPath: retina-agent-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+      #         enable_network: true
+      #         enable_service_tree_acr_path: false
+      #         build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+      #         saveMetadataToPath: image-metadata-retina-agent-$(TAG_VERSION).json  #有待考证
 
 
-      - job: agentInitLinuxArm64ImageBuild
-        displayName: Agent Init Linux arm64 Image Build
-        dependsOn: prepare
-        condition: succeeded()
-        pool:
-          type: docker
-          os: linux
-        variables:
-          TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ob_git_checkout: true
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts'
-            inputs:
-              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
-              artifact: drop_build_prepare
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile
-              arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=init BUILDX_ACTION=--push"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
-              repositoryName: retina-oss-init  #这个是你的image名字一部分，然后也是你自己取得
-              registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: retina-init-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-retina-init-$(TAG_VERSION).json  #有待考证
+      # - job: agentInitLinuxArm64ImageBuild
+      #   displayName: Agent Init Linux arm64 Image Build
+      #   dependsOn: prepare
+      #   condition: succeeded()
+      #   pool:
+      #     type: docker
+      #     os: linux
+      #   variables:
+      #     TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+      #     APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+      #     ob_git_checkout: true
+      #   steps:
+      #     - task: DownloadPipelineArtifact@2
+      #       displayName: 'Download Artifacts'
+      #       inputs:
+      #         targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+      #         artifact: drop_build_prepare
+      #     - task: onebranch.pipeline.imagebuildinfo@1
+      #       inputs:
+      #         buildkit: 1  #stand for buildx
+      #         dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile
+      #         arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=init BUILDX_ACTION=--push"
+      #         dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
+      #         repositoryName: retina-oss-init  #这个是你的image名字一部分，然后也是你自己取得
+      #         registry: ghcr.io/microsoft
+      #         compress: true
+      #         saveImageToPath: retina-init-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+      #         enable_network: true
+      #         enable_service_tree_acr_path: false
+      #         build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+      #         saveMetadataToPath: image-metadata-retina-init-$(TAG_VERSION).json  #有待考证
 
-      - job: operatorLinuxArm64ImageBuild
-        displayName: Operator Linux arm64 Image Build
-        dependsOn: prepare
-        condition: succeeded()
-        pool:
-          type: docker
-          os: linux
-        variables:
-          TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ob_git_checkout: true
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts'
-            inputs:
-              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
-              artifact: drop_build_prepare
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/operator/Dockerfile
-              arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
-              repositoryName: retina-oss-operator  #这个是你的image名字一部分，然后也是你自己取得
-              registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: retina-operator-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-retina-operator-$(TAG_VERSION).json  #有待考证
+      # - job: operatorLinuxArm64ImageBuild
+      #   displayName: Operator Linux arm64 Image Build
+      #   dependsOn: prepare
+      #   condition: succeeded()
+      #   pool:
+      #     type: docker
+      #     os: linux
+      #   variables:
+      #     TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+      #     APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+      #     ob_git_checkout: true
+      #   steps:
+      #     - task: DownloadPipelineArtifact@2
+      #       displayName: 'Download Artifacts'
+      #       inputs:
+      #         targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+      #         artifact: drop_build_prepare
+      #     - task: onebranch.pipeline.imagebuildinfo@1
+      #       inputs:
+      #         buildkit: 1  #stand for buildx
+      #         dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/operator/Dockerfile
+      #         arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
+      #         dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
+      #         repositoryName: retina-oss-operator  #这个是你的image名字一部分，然后也是你自己取得
+      #         registry: ghcr.io/microsoft
+      #         compress: true
+      #         saveImageToPath: retina-operator-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+      #         enable_network: true
+      #         enable_service_tree_acr_path: false
+      #         build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+      #         saveMetadataToPath: image-metadata-retina-operator-$(TAG_VERSION).json  #有待考证
 
-      - job: shellLinuxAmd64ImageBuild
-        displayName: Build Retina Amd64 Shell Images 
-        dependsOn: prepare
-        condition: succeeded()
-        pool:
-          type: docker
-          os: linux
-        variables:
-          TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ob_git_checkout: true
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts'
-            inputs:
-              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
-              artifact: drop_build_prepare
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/shell/Dockerfile
-              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
-              repositoryName: retina-oss-shell  #这个是你的image名字一部分，然后也是你自己取得
-              registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: retina-shell-$(TAG_VERSION)-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: $(TAG_VERSION)-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-retina-shell-$(TAG_VERSION).json  #有待考证
+      # - job: shellLinuxAmd64ImageBuild
+      #   displayName: Build Retina Amd64 Shell Images 
+      #   dependsOn: prepare
+      #   condition: succeeded()
+      #   pool:
+      #     type: docker
+      #     os: linux
+      #   variables:
+      #     TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+      #     APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+      #     ob_git_checkout: true
+      #   steps:
+      #     - task: DownloadPipelineArtifact@2
+      #       displayName: 'Download Artifacts'
+      #       inputs:
+      #         targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+      #         artifact: drop_build_prepare
+      #     - task: onebranch.pipeline.imagebuildinfo@1
+      #       inputs:
+      #         buildkit: 1  #stand for buildx
+      #         dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/shell/Dockerfile
+      #         arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
+      #         dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
+      #         repositoryName: retina-oss-shell  #这个是你的image名字一部分，然后也是你自己取得
+      #         registry: ghcr.io/microsoft
+      #         compress: true
+      #         saveImageToPath: retina-shell-$(TAG_VERSION)-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+      #         enable_network: true
+      #         enable_service_tree_acr_path: false
+      #         build_tag: $(TAG_VERSION)-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+      #         saveMetadataToPath: image-metadata-retina-shell-$(TAG_VERSION).json  #有待考证
 
 
-      - job: shellLinuxArm64ImageBuild
-        displayName: Build Retina Amd64 Shell Images 
-        dependsOn: prepare
-        condition: succeeded()
-        pool:
-          type: docker
-          os: linux
-        variables:
-          TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ob_git_checkout: true
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts'
-            inputs:
-              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
-              artifact: drop_build_prepare
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/shell/Dockerfile
-              arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
-              repositoryName: retina-oss-shell  #这个是你的image名字一部分，然后也是你自己取得
-              registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: retina-shell-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-retina-shell-$(TAG_VERSION).json  #有待考证
+      # - job: shellLinuxArm64ImageBuild
+      #   displayName: Build Retina Amd64 Shell Images 
+      #   dependsOn: prepare
+      #   condition: succeeded()
+      #   pool:
+      #     type: docker
+      #     os: linux
+      #   variables:
+      #     TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+      #     APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+      #     ob_git_checkout: true
+      #   steps:
+      #     - task: DownloadPipelineArtifact@2
+      #       displayName: 'Download Artifacts'
+      #       inputs:
+      #         targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+      #         artifact: drop_build_prepare
+      #     - task: onebranch.pipeline.imagebuildinfo@1
+      #       inputs:
+      #         buildkit: 1  #stand for buildx
+      #         dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/shell/Dockerfile
+      #         arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
+      #         dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
+      #         repositoryName: retina-oss-shell  #这个是你的image名字一部分，然后也是你自己取得
+      #         registry: ghcr.io/microsoft
+      #         compress: true
+      #         saveImageToPath: retina-shell-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+      #         enable_network: true
+      #         enable_service_tree_acr_path: false
+      #         build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+      #         saveMetadataToPath: image-metadata-retina-shell-$(TAG_VERSION).json  #有待考证
 
-      - job: KubectlLinuxAmd64ImageBuild
-        displayName: Build kubectl Retina Amd64 Images 
-        dependsOn: prepare
-        condition: succeeded()
-        pool:
-          type: docker
-          os: linux
-        variables:
-          TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ob_git_checkout: true
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts'
-            inputs:
-              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
-              artifact: drop_build_prepare
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/cli/Dockerfile
-              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
-              repositoryName: kubectl-retina  #这个是你的image名字一部分，然后也是你自己取得
-              registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: kubectl-retina-$(TAG_VERSION)-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: $(TAG_VERSION)-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-kubectl-retina-$(TAG_VERSION).json  #有待考证
+      # - job: KubectlLinuxAmd64ImageBuild
+      #   displayName: Build kubectl Retina Amd64 Images 
+      #   dependsOn: prepare
+      #   condition: succeeded()
+      #   pool:
+      #     type: docker
+      #     os: linux
+      #   variables:
+      #     TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+      #     APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+      #     ob_git_checkout: true
+      #   steps:
+      #     - task: DownloadPipelineArtifact@2
+      #       displayName: 'Download Artifacts'
+      #       inputs:
+      #         targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+      #         artifact: drop_build_prepare
+      #     - task: onebranch.pipeline.imagebuildinfo@1
+      #       inputs:
+      #         buildkit: 1  #stand for buildx
+      #         dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/cli/Dockerfile
+      #         arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
+      #         dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
+      #         repositoryName: kubectl-retina  #这个是你的image名字一部分，然后也是你自己取得
+      #         registry: ghcr.io/microsoft
+      #         compress: true
+      #         saveImageToPath: kubectl-retina-$(TAG_VERSION)-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+      #         enable_network: true
+      #         enable_service_tree_acr_path: false
+      #         build_tag: $(TAG_VERSION)-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+      #         saveMetadataToPath: image-metadata-kubectl-retina-$(TAG_VERSION).json  #有待考证
 
-      - job: KubectlLinuxArm64ImageBuild
-        displayName: Build kubectl Retina Arm64 Images 
-        dependsOn: prepare
-        condition: succeeded()
-        pool:
-          type: docker
-          os: linux
-        variables:
-          TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ob_git_checkout: true
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts'
-            inputs:
-              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
-              artifact: drop_build_prepare
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/cli/Dockerfile
-              arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
-              repositoryName: kubectl-retina  #这个是你的image名字一部分，然后也是你自己取得
-              registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: kubectl-retina-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-kubectl-retina-$(TAG_VERSION).json  #有待考证
+      # - job: KubectlLinuxArm64ImageBuild
+      #   displayName: Build kubectl Retina Arm64 Images 
+      #   dependsOn: prepare
+      #   condition: succeeded()
+      #   pool:
+      #     type: docker
+      #     os: linux
+      #   variables:
+      #     TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+      #     APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+      #     ob_git_checkout: true
+      #   steps:
+      #     - task: DownloadPipelineArtifact@2
+      #       displayName: 'Download Artifacts'
+      #       inputs:
+      #         targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+      #         artifact: drop_build_prepare
+      #     - task: onebranch.pipeline.imagebuildinfo@1
+      #       inputs:
+      #         buildkit: 1  #stand for buildx
+      #         dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/cli/Dockerfile
+      #         arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent BUILDX_ACTION=--push"
+      #         dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
+      #         repositoryName: kubectl-retina  #这个是你的image名字一部分，然后也是你自己取得
+      #         registry: ghcr.io/microsoft
+      #         compress: true
+      #         saveImageToPath: kubectl-retina-$(TAG_VERSION)-linux-arm64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+      #         enable_network: true
+      #         enable_service_tree_acr_path: false
+      #         build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+      #         saveMetadataToPath: image-metadata-kubectl-retina-$(TAG_VERSION).json  #有待考证
