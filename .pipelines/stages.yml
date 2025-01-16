@@ -42,6 +42,8 @@ stages:
       ob_git_fetchTags: true
     steps:
     - download: ${{ parameters.artifactPipelineName }}
+    #只有这样才能找到代码
+    - checkout: ${{ parameters.retinaOSSRepoName }}
     - task: Bash@3
       inputs:
         # filePath: $(Build.SourcesDirectory)/.devops/Retina-OSS-Ev2/restore.sh
