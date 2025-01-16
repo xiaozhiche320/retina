@@ -127,16 +127,16 @@ stages:
             inputs:
               buildkit: 1  #stand for buildx
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile
-              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=init --push"
+              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=31be7cb --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=init --push"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
               repositoryName: retina-oss-init  #这个是你的image名字一部分，然后也是你自己取得
               registry: ghcr.io/microsoft
               compress: true
-              saveImageToPath: retina-init-$(TAG_VERSION)-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
+              saveImageToPath: retina-init-31be7cb-linux-amd64.tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
               enable_network: true
               enable_service_tree_acr_path: false
-              build_tag: $(TAG_VERSION)-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
-              saveMetadataToPath: image-metadata-retina-init-$(TAG_VERSION).json  #有待考证
+              build_tag: 31be7cb-linux-amd64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
+              saveMetadataToPath: image-metadata-retina-init-31be7cb.json  #有待考证
 
 
       - job: operatorLinuxAmd64ImageBuild
