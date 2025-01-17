@@ -40,9 +40,11 @@ echo -n $BUILD_BUILDNUMBER | tee ./EV2Specs/BuildVer.txt
 # done
 echo "Listing contents of ../../../../"
 ls ../../../../
-
+ARCHS=("Amd64" "Arm64")
 for arch in "${ARCHS[@]}"; do
     mkdir -p "$arch"
+
+    
     IMAGE_NAMES=("agentInit" "agent" "operator")
 
     for image in "${IMAGE_NAMES[@]}"; do
