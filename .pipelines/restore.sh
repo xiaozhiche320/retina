@@ -56,6 +56,7 @@ for arch in "${ARCHS[@]}"; do
     IMAGE_NAMES=("agentInit" "agent" "operator")
 
     for image in "${IMAGE_NAMES[@]}"; do
+    #这个路径很重要啊
         ORIGINAL_DIRECTORY="../../../retina-oss-build/drop_build_${image}Linux${arch}ImageBuild"
         
         # 检查目录是否存在
