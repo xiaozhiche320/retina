@@ -251,7 +251,7 @@ stages:
             inputs:
               buildkit: 1  #stand for buildx
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/operator/Dockerfile
-              arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent"
+              arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} # need test
               repositoryName: retina-oss-operator  #这个是你的image名字一部分，然后也是你自己取得
               registry: ghcr.io/microsoft

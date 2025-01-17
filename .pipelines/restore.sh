@@ -53,7 +53,7 @@ for arch in "${ARCHS[@]}"; do
     mkdir -p "$arch"
 
 
-    IMAGE_NAMES=("agentInit" "agent" "operator")
+    IMAGE_NAMES=("agentInit" "agent" "operator" "Kubectl" "shell")
 
     for image in "${IMAGE_NAMES[@]}"; do
     #这个路径很重要啊
