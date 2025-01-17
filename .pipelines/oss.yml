@@ -82,14 +82,6 @@ stages:
             inputs:
               buildkit: 1  #stand for buildx
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile 
-              # arguments: "   AGENT_TARGETS=$(target) \
-                # TAG=$(make version) \
-                # APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) \
-                # IMAGE_NAMESPACE=retina \
-                # PLATFORM=$(platform)/$(arch) \
-                # IMAGE_REGISTRY=ghcr.io/microsoft  \
-                # BUILDX_ACTION="-o type=docker,dest=./output/images/$(platform)/$(arch)/retina-$(target)-$VERSION-$(platform)-$(arch).tar""
-                #          image name = cr/path/name:tag
               arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} #不确定对不对，和之前那个realpath有关但是
               repositoryName: retina-oss-agent  #这个是你的image名字一部分，然后也是你自己取得
@@ -155,7 +147,7 @@ stages:
             inputs:
               buildkit: 1  #stand for buildx
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/operator/Dockerfile
-              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent"
+              arguments: "--platform linux/amd64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=amd64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5"
               repositoryName: retina-oss-operator  #这个是你的image名字一部分，然后也是你自己取得
               registry: ghcr.io/microsoft
               compress: true
@@ -174,10 +166,9 @@ stages:
           type: docker #这里有待考证到底是怎么设置的，我只是抄的，但是我不知道怎么搞的其实
           os: linux
         variables:
-        #这两个主要就是在下面那个arg用，所以你要看你自己需不需要，命名也随意吧，但是你要对应上对应的东西就行，以及下面那个argument实际上就是你的dockerfile make command里面的变量
           TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
           #这里这个可能要改，因为我是固定的，而且之前没有set过这个，但是enterprise是根据之前prepare的id给出的才能，我这个应该在pipeline variable里set
-          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
+          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)   #感觉直接这个就可以了 $(APP_INSIGHTS_ID)
           ob_git_checkout: true  #OneBranch Pipelines doesn't clone the repository in the Docker job by default. To access the source code, you need to set the ob_git_checkout job variable:
         steps:
           - task: DownloadPipelineArtifact@2
@@ -188,7 +179,7 @@ stages:
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               buildkit: 1  #stand for buildx
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile #这个你要寻找docker file，因为docker 命令需要一个docker file来执行的其实
+              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile 
               arguments: "--platform linux/arm64 --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg GOOS=linux --build-arg GOARCH=arm64 --build-arg OS_VERSION=ltsc2019 --build-arg HUBBLE_VERSION=v1.16.5 --target=agent"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }} #不确定对不对，和之前那个realpath有关但是
               repositoryName: retina-oss-agent  #这个是你的image名字一部分，然后也是你自己取得
