@@ -56,7 +56,7 @@ for arch in "${ARCHS[@]}"; do
     IMAGE_NAMES=("agentInit" "agent" "operator")
 
     for image in "${IMAGE_NAMES[@]}"; do
-        ORIGINAL_DIRECTORY="../../../../retina-oss-build/drop_build_${image}Linux${arch}ImageBuild"
+        ORIGINAL_DIRECTORY="../../../retina-oss-build/drop_build_${image}Linux${arch}ImageBuild"
         
         # 检查目录是否存在
         if [ ! -d "$ORIGINAL_DIRECTORY" ]; then
