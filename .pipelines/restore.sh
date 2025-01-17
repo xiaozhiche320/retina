@@ -48,6 +48,8 @@ echo -n $BUILD_BUILDNUMBER | tee ./EV2Specs/BuildVer.txt
 # ls ../../
 # echo "Listing contents of ../"
 # ls ../
+ls ../../../retina-oss-build/
+echo "finish"
 ARCHS=("Amd64" "Arm64")
 for arch in "${ARCHS[@]}"; do
     mkdir -p "$arch"
