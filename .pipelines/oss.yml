@@ -171,8 +171,8 @@ stages:
           APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)   #感觉直接这个就可以了 $(APP_INSIGHTS_ID)
           ob_git_checkout: true  #OneBranch Pipelines doesn't clone the repository in the Docker job by default. To access the source code, you need to set the ob_git_checkout job variable:
           # This variable is needed to enable QEMU for ARM64 builds. https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/buildarm64containers
-          ${{  if eq(parameters.arch, 'arm64')  }}:
-            ob_enable_qemu: true
+          # ${{  if eq(parameters.arch, 'arm64')  }}:
+          ob_enable_qemu: true
         steps:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Artifacts'
