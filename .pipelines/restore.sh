@@ -38,16 +38,16 @@ echo -n $BUILD_BUILDNUMBER | tee ./EV2Specs/BuildVer.txt
 #         ls -alF $arch
 #     done
 # done
-echo "Listing contents of ../../../../../"
-ls ../../../../../
-echo "Listing contents of ../../../../"
-ls ../../../../
-echo "Listing contents of ../../../"
-ls ../../../
-echo "Listing contents of ../../"
-ls ../../
-echo "Listing contents of ../"
-ls ../
+# echo "Listing contents of ../../../../../"
+# ls ../../../../../
+# echo "Listing contents of ../../../../"
+# ls ../../../../
+# echo "Listing contents of ../../../"
+# ls ../../../
+# echo "Listing contents of ../../"
+# ls ../../
+# echo "Listing contents of ../"
+# ls ../
 ARCHS=("Amd64" "Arm64")
 for arch in "${ARCHS[@]}"; do
     mkdir -p "$arch"
@@ -65,13 +65,13 @@ for arch in "${ARCHS[@]}"; do
             continue
         fi
         
-        echo "Processing directory: $ORIGINAL_DIRECTORY"
-        ls -alF "$ORIGINAL_DIRECTORY"
+        # echo "Processing directory: $ORIGINAL_DIRECTORY"
+        # ls -alF "$ORIGINAL_DIRECTORY"
 
         for file in "$ORIGINAL_DIRECTORY"/*; do
             echo "Processing file: $file"
             if [[ "$file" == *.tar.gz ]]; then
-                echo "Decompressing file: $file"
+                echo "Decompressing file...............: $file"
                 gunzip "$file" && echo "Decompressed: $file"
                 file="${file%.gz}"
                 if [ -f "$file" ]; then
