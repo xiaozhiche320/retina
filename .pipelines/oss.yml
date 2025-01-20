@@ -437,26 +437,37 @@ stages:
               build_tag: windows-amd64-$(WINDOWS_VERSION)
               # enable_acr_push: true
               # endpoint: $(ACR_SERVICE_CONNECTION)
-          - task: onebranch.pipeline.containercontrol@1
-            displayName: "Load Builder Image"
+          # - task: onebranch.pipeline.containercontrol@1
+          #   displayName: "Load Builder Image"
+          #   inputs:
+          #     command: load
+          #     imagePath: $(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
+          - task: PowerShell@2
+            displayName: "Extract and Load Builder Image"
             inputs:
-              command: load
-              imagePath: $(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
+              targetType: 'inline'
+              script: |
+                $tarGzPath = "$(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz"
+                $tarPath = "$(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar"
+                Write-Host "Extracting $tarGzPath to $tarPath"
+                tar -xzf $tarGzPath -C "$(Build.SourcesDirectory)/dst/drop_build_prepare"
+                Write-Host "Loading Docker image from $tarPath"
+                docker load -i $tarPath
 
 
 
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile.windows-native
-              arguments: "--platform windows/amd64  --build-arg BUILDER_IMAGE=$fullBuilderImageName --build-arg VERSION=$(WINDOWS_VERSION) --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --target final"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
-              repositoryName: retina-builder
-              registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
-              enable_network: true
-              enable_service_tree_acr_path: false
-              build_tag: windows-amd64-$(WINDOWS_VERSION)
+          # - task: onebranch.pipeline.imagebuildinfo@1
+          #   inputs:
+          #     dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile.windows-native
+          #     arguments: "--platform windows/amd64  --build-arg BUILDER_IMAGE=$fullBuilderImageName --build-arg VERSION=$(WINDOWS_VERSION) --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --target final"
+          #     dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+          #     repositoryName: retina-builder
+          #     registry: ghcr.io/microsoft
+          #     compress: true
+          #     saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
+          #     enable_network: true
+          #     enable_service_tree_acr_path: false
+          #     build_tag: windows-amd64-$(WINDOWS_VERSION)
               # enable_acr_push: true
               # endpoint: $(ACR_SERVICE_CONNECTION)
 
