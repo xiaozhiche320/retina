@@ -409,7 +409,7 @@ stages:
           ob_git_checkout: true
         steps:
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download Artifacts From Retina Enterprise'
+            displayName: 'Download Artifacts'
             inputs:
               targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
               artifact: drop_build_prepare
@@ -417,6 +417,12 @@ stages:
           - checkout: ${{ parameters.retinaenterpriseRepoName }}
             fetchTags: true
             displayName: "Checkout Retina Enterprise"
+          - script: |
+              echo "Contents of $(Build.SourcesDirectory)/dst:"
+              ls $(Build.SourcesDirectory)/dst
+              echo "Contents of $(Build.SourcesDirectory)/dst/retina-enterprise/windows/docker:"
+              ls $(Build.SourcesDirectory)/dst/retina-enterprise/windows/docker
+            displayName: "List directory contents for debugging"
 
           # - task: onebranch.pipeline.containercontrol@1
           #   displayName: "Login to ACR"
