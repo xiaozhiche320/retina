@@ -73,9 +73,6 @@ find . -type f -name "*.tar" | while read -r tarball; do
     # Use crane to push image to the Azure Container Registry
     crane push "$tarball" "$ACR_URL/$image_details"
     
-    #这一行试验
-    image_digest=$(crane digest "$ACR_URL/$image_details")
-
     # Extract the image name and git sha tag
     image_name="${image_details%:*}"
     
@@ -86,9 +83,7 @@ find . -type f -name "*.tar" | while read -r tarball; do
     fi
     
     # Add the image details to the manifest file
-    # echo "$ACR_URL/$image_details" >> "./manifests/$image_name.txt"
-    # 看看行不行
-    echo "$ACR_URL/$image_name@$image_digest" >> "./manifests/$image_name.txt"
+    echo "$ACR_URL/$image_details" >> "./manifests/$image_name.txt"
 done
 
 # Traverse the directory containing the manifest files

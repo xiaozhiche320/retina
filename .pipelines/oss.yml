@@ -3,6 +3,8 @@ parameters:
   type: string
 - name: retinaOSSRepoName #not sure if really need but put for now, YEAH NEED BUT pass this variable for githuboss in 'main'
   type: string
+- name: retinaEnterpriseRepoName
+  type: string
 
 
 stages:
@@ -392,3 +394,69 @@ stages:
               enable_service_tree_acr_path: false
               build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
               saveMetadataToPath: image-metadata-kubectl-retina-$(TAG_VERSION).json  #有待考证
+
+
+      - job: builderForWindowsNative
+        displayName: Builder for Windows Navite Image Build
+        dependsOn: prepare
+        condition: succeeded()
+        pool:
+          type: docker
+          os: windows
+        variables:
+          # WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.WINDOWS_VERSION'] ]
+          WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+          ob_git_checkout: true
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Artifacts From Retina Enterprise'
+            inputs:
+              targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
+              artifact: drop_build_prepare
+          # add checkout for retina enterprise
+          - checkout: ${{ parameters.retinaenterpriseRepoName }}
+            fetchTags: true
+            displayName: "Checkout Retina Enterprise"
+
+          # - task: onebranch.pipeline.containercontrol@1
+          #   displayName: "Login to ACR"
+          #   inputs:
+          #     command: login
+          #     endpoint: $(ACR_SERVICE_CONNECTION)
+          - task: onebranch.pipeline.imagebuildinfo@1
+            inputs:
+              dockerFileRelPath: ${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
+              arguments: "--build-arg VERSION=$(WINDOWS_VERSION) --target builder"
+              dockerFileContextPath: ${{ parameters.retinaEnterpriseRepoName }}
+              repositoryName: retina-builder #your name it yourself whatever
+              registry: ghcr.io/microsoft
+              compress: true
+              saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
+              enable_network: true
+              enable_service_tree_acr_path: false
+              build_tag: windows-amd64-$(WINDOWS_VERSION)
+              # enable_acr_push: true
+              # endpoint: $(ACR_SERVICE_CONNECTION)
+          - task: onebranch.pipeline.containercontrol@1
+            displayName: "Load Builder Image"
+            inputs:
+              command: load
+              imagePath: $(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
+
+
+
+          - task: onebranch.pipeline.imagebuildinfo@1
+            inputs:
+              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile.windows-native
+              arguments: "--platform windows/amd64  --build-arg BUILDER_IMAGE=$fullBuilderImageName --build-arg VERSION=$(WINDOWS_VERSION) --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --target final"
+              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+              repositoryName: retina-builder
+              registry: ghcr.io/microsoft
+              compress: true
+              saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
+              enable_network: true
+              enable_service_tree_acr_path: false
+              build_tag: windows-amd64-$(WINDOWS_VERSION)
+              # enable_acr_push: true
+              # endpoint: $(ACR_SERVICE_CONNECTION)
+
