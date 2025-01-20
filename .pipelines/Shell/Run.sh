@@ -6,7 +6,7 @@ IMAGE_NAME="multi_arch_image.tar"
 
 echo "Target ACR_URL=${ACR_URL}"
 
-tdnf upgrade -y && tdnf install -y wget
+tdnf upgrade -y && tdnf install -y wget gzip
 
 echo "setting XDG_RUNTIME_DIR"
 export XDG_RUNTIME_DIR=/run/user/$(id -u)
