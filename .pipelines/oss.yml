@@ -422,7 +422,9 @@ stages:
               ls $(Build.SourcesDirectory)/dst
               echo "Contents of $(Build.SourcesDirectory)/dst/retina-enterprise/windows/docker:"
               ls $(Build.SourcesDirectory)/dst/retina-enterprise/windows/docker
-            displayName: "List directory contents for debugging"
+            name: setVariables #你看上面有一个task.setvariable，这个是为了传递变量，所以这个名字是为了传递变量的，不然你pass不过去
+            displayName: "List Contents"
+            condition: always()
 
           # - task: onebranch.pipeline.containercontrol@1
           #   displayName: "Login to ACR"
