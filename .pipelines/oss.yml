@@ -439,7 +439,7 @@ stages:
             inputs:
                 command: login
                 acr_name: cdpxdd590928-4e04-48cb-9d3d-ee06c5f0e17f00.azurecr.io   #https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/isolatedacr
-                tenant: MSFT
+                tenant: AME
 
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
