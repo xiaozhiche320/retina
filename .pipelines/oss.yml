@@ -434,6 +434,13 @@ stages:
               targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
               artifact: drop_build_prepare
 
+          - task: onebranch.pipeline.containercontrol@1
+            displayName: "Login to source ACR"
+            inputs:
+                command: login
+                acr_name: cdpxdd590928-4e04-48cb-9d3d-ee06c5f0e17f00.azurecr.io   #https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/isolatedacr
+                tenant: MSFT
+
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
@@ -449,14 +456,6 @@ stages:
               enable_isolated_acr_push: true
               enable_service_tree_acr_path: false
 
-
-          - task: onebranch.pipeline.containercontrol@1
-            displayName: "Login to source ACR"
-            inputs:
-                command: login
-                acr_name: cdpxdd590928-4e04-48cb-9d3d-ee06c5f0e17f00.azurecr.io   #https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/isolatedacr
-                tenant: MSFT
-            
 
                 # Step 3: 构建 Retina Agent 镜像，直接使用 .tar 文件路径
           - task: onebranch.pipeline.imagebuildinfo@1
