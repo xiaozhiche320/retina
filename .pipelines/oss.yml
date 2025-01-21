@@ -417,7 +417,7 @@ stages:
         condition: succeeded()
         pool:
           type: docker
-          os: windows
+          os: windows2022
         variables:
           # WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.WINDOWS_VERSION'] ]
           WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
@@ -449,7 +449,7 @@ stages:
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
-              arguments: "--build-arg VERSION=$(WINDOWS_VERSION) --target builder"
+              arguments: "--platform linux/arm64 --build-arg VERSION=$(WINDOWS_VERSION) --target=builder"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
               repositoryName: retina-builder #your name it yourself whatever
               registry: ghcr.io/microsoft
@@ -458,8 +458,8 @@ stages:
               enable_network: true
               enable_service_tree_acr_path: false
               build_tag: windows-amd64-$(WINDOWS_VERSION)
-              # enable_acr_push: true
-              # endpoint: $(ACR_SERVICE_CONNECTION)
+
+
           # - task: onebranch.pipeline.containercontrol@1
           #   displayName: "Load Builder Image"
           #   inputs:
