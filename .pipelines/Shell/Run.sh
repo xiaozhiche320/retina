@@ -65,11 +65,16 @@ extract_image_details() {
     echo "$name:$tag"
 }
 
+    # retina-agent-d56789-linux-amd64.tar  basename 去掉文件路径，如果有的话，保留文件名 所以还是这个
+    # image_details 去掉tar并且换名字retina-agent:d56789-linux-amd64
+    # image_name=retina-agent
+    # git sha tag d56789-linux-amd64 -- 再去掉平台后缀
+
 # Traverse the directory and process each tarball
 find . -type f -name "*.tar" | while read -r tarball; do
     # Extract image name and tag
     image_details=$(extract_image_details "$(basename "$tarball")")
-    
+
     # Use crane to push image to the Azure Container Registry
     crane push "$tarball" "$ACR_URL/$image_details"
     
@@ -87,25 +92,54 @@ find . -type f -name "*.tar" | while read -r tarball; do
 done
 
 # Traverse the directory containing the manifest files
+# find ./manifests -type f -name "*.txt" | while read -r manifest_file; do
+#     # Read the image details from the manifest file into an array
+#     mapfile -t image_details_array < "$manifest_file"
+    
+#     # Extract the common git sha tag
+#     git_sha_tag="${image_details_array[0]#*:}"
+#     git_sha_tag="${git_sha_tag%-*-*}"  # Remove the platform suffix
+    
+#     if [[ $git_sha_tag == *"windows"* ]]; then
+#         # Handle the case for Windows image names/tags
+#         git_sha_tag="${git_sha_tag%-*}"
+#     fi
+    
+#     # Extract the image name from the manifest file name
+#     image_name=$(basename "$manifest_file" .txt)
+    
+#     # Create a multi-platform image manifest using crane
+#     crane append -t "$ACR_URL/$image_name:$git_sha_tag" \
+#         $(for image_detail in "${image_details_array[@]}"; do echo "--base $image_detail "; done) \
+#         -f /dev/null \
+#         --set-base-image-annotations
+#     # Define the full name of the destination image
+#     DEST_IMAGE_FULL_NAME="$DESTINATION_ACR_NAME.azurecr.io/$ACR_PATH/$IMAGE_NAME:$TAG_NAME"
+#     DEST_IMAGE_FULL_NAME="$ACR_URL/some variable here"
+    
+
+#     crane index append --docker-empty-base -m $DEST_IMAGE_FULL_NAME-linux-amd64 -m $DEST_IMAGE_FULL_NAME-linux-arm64 -t $DEST_IMAGE_FULL_NAME
+
+# done
 find ./manifests -type f -name "*.txt" | while read -r manifest_file; do
     # Read the image details from the manifest file into an array
     mapfile -t image_details_array < "$manifest_file"
     
-    # Extract the common git sha tag
+    # Extract the git SHA tag by removing architecture
     git_sha_tag="${image_details_array[0]#*:}"
-    git_sha_tag="${git_sha_tag%-*-*}"  # Remove the platform suffix
-    
-    if [[ $git_sha_tag == *"windows"* ]]; then
-        # Handle the case for Windows image names/tags
-        git_sha_tag="${git_sha_tag%-*}"
-    fi
-    
+    git_sha_tag="${git_sha_tag%-*-*}"  # Remove the platform suffix (e.g., -linux-amd64)
+
     # Extract the image name from the manifest file name
     image_name=$(basename "$manifest_file" .txt)
-    
-    # Create a multi-platform image manifest using crane
-    crane append -t "$ACR_URL/$image_name:$git_sha_tag" \
-        $(for image_detail in "${image_details_array[@]}"; do echo "--base $image_detail "; done) \
-        -f /dev/null \
-        --set-base-image-annotations
+
+    # Define the full destination image name (without architecture)
+    DEST_IMAGE_FULL_NAME="$ACR_URL/$image_name:$git_sha_tag"
+
+    # Construct the `crane index append` command dynamically
+    crane index append --docker-empty-base \
+        $(for image_detail in "${image_details_array[@]}"; do 
+            arch="${image_detail##*-}"  # Extract architecture suffix
+            echo "-m $image_detail"
+        done) \
+        -t "$DEST_IMAGE_FULL_NAME"
 done
