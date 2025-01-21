@@ -417,9 +417,11 @@ stages:
         condition: succeeded()
         pool:
           type: docker
-          os: windows2022
+          os: windows
+          hostVersion: 1ESWindows2022
         variables:
           # WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.WINDOWS_VERSION'] ]
+          WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2022/vse2022:latest' # https://aka.ms/obpipelines/containers
           WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
           ob_git_checkout: true
         steps:
