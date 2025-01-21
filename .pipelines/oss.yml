@@ -449,7 +449,8 @@ stages:
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile.windows-native
-              arguments: "--build-arg BUILDER_IMAGE=$(Build.SourcesDirectory)/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar --build-arg VERSION=$(WINDOWS_VERSION) --target=final --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID)"
+              arguments: "--build-arg BUILDER_IMAGE=ghcr.io/microsoft/retina-builder:windows-amd64-$(WINDOWS_VERSION) --build-arg VERSION=$(WINDOWS_VERSION) --target=final --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID)"
+              # arguments: "--build-arg BUILDER_IMAGE=$(Build.SourcesDirectory)/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar --build-arg VERSION=$(WINDOWS_VERSION) --target=final --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID)"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}
               repositoryName: retina-agent-win
               registry: ghcr.io/microsoft
