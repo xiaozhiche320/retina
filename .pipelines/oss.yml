@@ -425,7 +425,7 @@ stages:
           # WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
           WINDOWS_VERSION: alpha
           APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
-          ONEBRANCH_AME_ACR_LOGIN: onebranch.azurecr.io, cdpxdd590928-4e04-48cb-9d3d-ee06c5f0e17f00.azurecr.io  # https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/isolatedacr
+          # ONEBRANCH_AME_ACR_LOGIN: onebranch.azurecr.io, cdpxdd590928-4e04-48cb-9d3d-ee06c5f0e17f00.azurecr.io  # https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/isolatedacr
           ob_git_checkout: true
         steps:
           - task: DownloadPipelineArtifact@2
