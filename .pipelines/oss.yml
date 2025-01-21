@@ -22,36 +22,36 @@ stages:
           OB_build_container: true
           ob_git_checkout: true
         steps:
-          # # - checkout: self
-          # #这里的问题是我不知道在哪里所以我想遵循amilcar的原则
-          # - checkout: ${{ parameters.retinaOSSRepoName }}
+          # - checkout: self
+          #这里的问题是我不知道在哪里所以我想遵循amilcar的原则
+          - checkout: ${{ parameters.retinaOSSRepoName }}
 
-          #   fetchTags: true
-          #   #build number is predefined in the pipeline runtime?
-          #   #tag是否要保持大小写一致
-          # - script: |
-          #     BUILD_NUMBER=$(Build.BuildNumber)            
-          #     # 获取版本号
-          #     if [ "$(Build.Reason)" = "Schedule" ]; then
-          #       echo "Pipeline triggered by schedule. Using 'latest' as tag."
-          #       TAG="latest"
-          #     else
-          #       # 检查当前 commit 是否有 tag
-          #       if [[ -z $(git tag --points-at HEAD) ]]; then
-          #         echo "No tag found on the current commit. Using commit hash as version."
-          #         TAG=$(git rev-parse --short HEAD)
-          #       else
-          #         echo "Tag found on the current commit. Using it as version."
-          #         TAG=$(git tag --points-at HEAD)
-          #       fi
-          #     fi
-          #     # 输出流水线变量，因为最后的目的是传递那个变量吧，vso是为了ADO通讯用
-          #     echo "Tag version is: $TAG"
-          #     echo "##vso[task.setvariable variable=TAG_VERSION;isOutput=true]$TAG"
+            fetchTags: true
+            #build number is predefined in the pipeline runtime?
+            #tag是否要保持大小写一致
+          - script: |
+              BUILD_NUMBER=$(Build.BuildNumber)            
+              # 获取版本号
+              if [ "$(Build.Reason)" = "Schedule" ]; then
+                echo "Pipeline triggered by schedule. Using 'latest' as tag."
+                TAG="latest"
+              else
+                # 检查当前 commit 是否有 tag
+                if [[ -z $(git tag --points-at HEAD) ]]; then
+                  echo "No tag found on the current commit. Using commit hash as version."
+                  TAG=$(git rev-parse --short HEAD)
+                else
+                  echo "Tag found on the current commit. Using it as version."
+                  TAG=$(git tag --points-at HEAD)
+                fi
+              fi
+              # 输出流水线变量，因为最后的目的是传递那个变量吧，vso是为了ADO通讯用
+              echo "Tag version is: $TAG"
+              echo "##vso[task.setvariable variable=TAG_VERSION;isOutput=true]$TAG"
 
-          #   name: setVariables #你看上面有一个task.setvariable，这个是为了传递变量，所以这个名字是为了传递变量的，不然你pass不过去
-          #   displayName: "Set environmental variables"
-          #   condition: always()
+            name: setVariables #你看上面有一个task.setvariable，这个是为了传递变量，所以这个名字是为了传递变量的，不然你pass不过去
+            displayName: "Set environmental variables"
+            condition: always()
 
           - checkout: ${{ parameters.retinaenterpriseRepoName }}
             fetchTags: true
@@ -64,11 +64,11 @@ stages:
             condition: always()
 
 
-          # - task: CopyFiles@2
-          #   displayName: Prepare sources for docker build
-          #   inputs:
-          #     SourceFolder: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}
-          #     TargetFolder: '$(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}'
+          - task: CopyFiles@2
+            displayName: Prepare sources for docker build
+            inputs:
+              SourceFolder: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}
+              TargetFolder: '$(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}'
           - task: CopyFiles@2
             displayName: Enterprise for docker build
             inputs:
