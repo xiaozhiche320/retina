@@ -441,20 +441,20 @@ stages:
                 acr_name: cdpxdd5909284e0448cb9d3dee06c5f0e17f00.azurecr.io   #https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/isolatedacr
                 tenant: AME
 
-          - task: onebranch.pipeline.imagebuildinfo@1
-            inputs:
-              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
-              arguments: "--build-arg VERSION=$(WINDOWS_VERSION) --target=builder"
-              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
-              repositoryName: retina-builder #your name it yourself whatever
-              compress: false #using the default value for late use
-              saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar
-              enable_network: true
-              build_tag: windows-amd64-$(WINDOWS_VERSION)
-              #push to isolated acr
-              registry: cdpxdd5909284e0448cb9d3dee06c5f0e17f00.azurecr.io
-              enable_isolated_acr_push: true
-              enable_service_tree_acr_path: false
+          # - task: onebranch.pipeline.imagebuildinfo@1
+          #   inputs:
+          #     dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
+          #     arguments: "--build-arg VERSION=$(WINDOWS_VERSION) --target=builder"
+          #     dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+          #     repositoryName: retina-builder #your name it yourself whatever
+          #     compress: false #using the default value for late use
+          #     saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar
+          #     enable_network: true
+          #     build_tag: windows-amd64-$(WINDOWS_VERSION)
+          #     #push to isolated acr
+          #     registry: cdpxdd5909284e0448cb9d3dee06c5f0e17f00.azurecr.io
+          #     enable_isolated_acr_push: true
+          #     enable_service_tree_acr_path: false
 
 
                 # Step 3: 构建 Retina Agent 镜像，直接使用 .tar 文件路径
