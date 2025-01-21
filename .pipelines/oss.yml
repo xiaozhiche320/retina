@@ -423,6 +423,7 @@ stages:
           # WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.WINDOWS_VERSION'] ]
           WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2022/vse2022:latest' # https://aka.ms/obpipelines/containers
           WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
+          APP_INSIGHTS_ID: $(APP_INSIGHTS_ID)
           ob_git_checkout: true
         steps:
           - task: DownloadPipelineArtifact@2
@@ -430,24 +431,7 @@ stages:
             inputs:
               targetPath: $(Build.SourcesDirectory)/dst/drop_build_prepare
               artifact: drop_build_prepare
-          # add checkout for retina enterprise
-          # - checkout: ${{ parameters.retinaenterpriseRepoName }}
-          #   fetchTags: true
-          #   displayName: "Checkout Retina Enterprise"
-          # - script: |
-          #     echo "Contents of $(Build.SourcesDirectory)/dst:"
-          #     ls $(Build.SourcesDirectory)/dst
-          #     echo "Contents of $(Build.SourcesDirectory)/dst/retina-enterprise/windows/docker:"
-          #     ls $(Build.SourcesDirectory)/dst/retina-enterprise/windows/docker
-            # name: setVariables #你看上面有一个task.setvariable，这个是为了传递变量，所以这个名字是为了传递变量的，不然你pass不过去
-            # displayName: "List Contents"
-            # condition: always()
 
-          # - task: onebranch.pipeline.containercontrol@1
-          #   displayName: "Login to ACR"
-          #   inputs:
-          #     command: login
-          #     endpoint: $(ACR_SERVICE_CONNECTION)
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
@@ -455,11 +439,23 @@ stages:
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
               repositoryName: retina-builder #your name it yourself whatever
               registry: ghcr.io/microsoft
-              compress: true
-              saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
+              compress: false #using the default value for late use
+              saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar
               enable_network: true
               enable_service_tree_acr_path: false
               build_tag: windows-amd64-$(WINDOWS_VERSION)
+
+                # Step 3: 构建 Retina Agent 镜像，直接使用 .tar 文件路径
+          - task: onebranch.pipeline.imagebuildinfo@1
+            inputs:
+            dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile.windows-native
+            arguments: "--build-arg BUILDER_IMAGE=$(Build.SourcesDirectory)/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar --build-arg VERSION=$(WINDOWS_VERSION) --target=final --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID)"
+            dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}
+            repositoryName: retina-agent-win
+            registry: ghcr.io/microsoft
+            enable_network: true
+            enable_service_tree_acr_path: false
+            build_tag: windows-amd64-$(WINDOWS_VERSION)
 
 
           # - task: onebranch.pipeline.containercontrol@1
@@ -467,17 +463,17 @@ stages:
           #   inputs:
           #     command: load
           #     imagePath: $(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
-          - task: PowerShell@2
-            displayName: "Extract and Load Builder Image"
-            inputs:
-              targetType: 'inline'
-              script: |
-                $tarGzPath = "$(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz"
-                $tarPath = "$(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar"
-                Write-Host "Extracting $tarGzPath to $tarPath"
-                tar -xzf $tarGzPath -C "$(Build.SourcesDirectory)/dst/drop_build_prepare"
-                Write-Host "Loading Docker image from $tarPath"
-                docker load -i $tarPath
+          # - task: PowerShell@2
+          #   displayName: "Extract and Load Builder Image"
+          #   inputs:
+          #     targetType: 'inline'
+          #     script: |
+          #       $tarGzPath = "$(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz"
+          #       $tarPath = "$(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar"
+          #       Write-Host "Extracting $tarGzPath to $tarPath"
+          #       tar -xzf $tarGzPath -C "$(Build.SourcesDirectory)/dst/drop_build_prepare"
+          #       Write-Host "Loading Docker image from $tarPath"
+          #       docker load -i $tarPath
 
 
 
