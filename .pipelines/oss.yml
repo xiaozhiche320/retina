@@ -448,14 +448,14 @@ stages:
                 # Step 3: 构建 Retina Agent 镜像，直接使用 .tar 文件路径
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
-            dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile.windows-native
-            arguments: "--build-arg BUILDER_IMAGE=$(Build.SourcesDirectory)/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar --build-arg VERSION=$(WINDOWS_VERSION) --target=final --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID)"
-            dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}
-            repositoryName: retina-agent-win
-            registry: ghcr.io/microsoft
-            enable_network: true
-            enable_service_tree_acr_path: false
-            build_tag: windows-amd64-$(WINDOWS_VERSION)
+              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile.windows-native
+              arguments: "--build-arg BUILDER_IMAGE=$(Build.SourcesDirectory)/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar --build-arg VERSION=$(WINDOWS_VERSION) --target=final --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID)"
+              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}
+              repositoryName: retina-agent-win
+              registry: ghcr.io/microsoft
+              enable_network: true
+              enable_service_tree_acr_path: false
+              build_tag: windows-amd64-$(WINDOWS_VERSION)
 
 
           # - task: onebranch.pipeline.containercontrol@1
