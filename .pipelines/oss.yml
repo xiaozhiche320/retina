@@ -451,7 +451,7 @@ stages:
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
-              arguments: "--platform linux/arm64 --build-arg VERSION=$(WINDOWS_VERSION) --target=builder"
+              arguments: "--build-arg VERSION=$(WINDOWS_VERSION) --target=builder"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
               repositoryName: retina-builder #your name it yourself whatever
               registry: ghcr.io/microsoft
