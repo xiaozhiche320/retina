@@ -57,7 +57,7 @@ jobs:
           enable_service_tree_acr_path: false
           build_tag: $(TAG_VERSION)-${{ parameters.os }}-${{ parameters.arch }}
           
-          ${{ if or (eq(parameters.target, 'agent'), eq(parameters.target, 'init')) }}:
+          ${{ if eq(parameters.target, 'agent') || eq(parameters.target, 'init') }}:
             dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile 
             arguments: "--platform ${{ parameters.os }}/${{ parameters.arch }} --build-arg GOOS=${{ parameters.os }} --build-arg GOARCH=${{ parameters.arch }} --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg OS_VERSION=ltsc2019 --target ${{ parameters.target }}"
             saveImageToPath: retina-${{ parameters.target }}-$(TAG_VERSION)-${{ parameters.os }}-${{ parameters.arch }}.tar.gz
@@ -68,7 +68,7 @@ jobs:
           #   arguments: "--platform ${{ parameters.os }}/${{ parameters.arch }} --build-arg GOOS=${{ parameters.os }} --build-arg GOARCH=${{ parameters.arch }} --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION) --build-arg OS_VERSION=ltsc2019 --target ${{ parameters.target }}"
           #   saveImageToPath: retina-${{ parameters.target }}-$(TAG_VERSION)-${{ parameters.os }}-${{ parameters.arch }}.tar.gz
           
-          ${{ if or(eq(parameters.target, 'operator'), eq(parameters.target, 'shell')) }}:
+          ${{ if (eq(parameters.target, 'operator') || eq(parameters.target, 'shell') }}:
             dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/${{ parameters.target }}/Dockerfile
             arguments: "--platform ${{ parameters.os }}/${{ parameters.arch }} --build-arg GOOS=${{ parameters.os }} --build-arg GOARCH=${{ parameters.arch }} --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --build-arg VERSION=$(TAG_VERSION)"
             saveImageToPath: retina-${{ parameters.target }}-$(TAG_VERSION)-${{ parameters.os }}-${{ parameters.arch }}.tar.gz
