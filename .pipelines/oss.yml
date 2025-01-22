@@ -83,7 +83,7 @@ stages:
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
       
       - template: template.docker-build.yml
         parameters:
@@ -91,7 +91,7 @@ stages:
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
 
       - template: template.docker-build.yml
         parameters:
@@ -99,7 +99,7 @@ stages:
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
 
       - template: template.docker-build.yml
         parameters:
@@ -107,7 +107,7 @@ stages:
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
         
       - template: template.docker-build.yml
         parameters:
@@ -115,7 +115,7 @@ stages:
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
 
       - template: template.docker-build.yml
         parameters:
@@ -123,7 +123,7 @@ stages:
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
         
       - template: template.docker-build.yml
         parameters:
@@ -131,7 +131,7 @@ stages:
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
       
       - template: template.docker-build.yml
         parameters:
@@ -139,7 +139,7 @@ stages:
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
 
       - template: template.docker-build.yml
         parameters:
@@ -147,7 +147,7 @@ stages:
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
 
       - template: template.docker-build.yml
         parameters:
@@ -155,7 +155,7 @@ stages:
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
+          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
 
 
 
