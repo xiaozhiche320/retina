@@ -1,6 +1,4 @@
 parameters:
-# - name: component
-#   type: string
 - name: os
   type: string
 
@@ -20,7 +18,7 @@ parameters:
 
 - name: registry
   type: string
-  default: acndev.azurecr.io   #ghcr.io
+  default: ghcr.io   #ghcr.io
 
 
 jobs:
@@ -34,10 +32,9 @@ jobs:
       os: ${{ parameters.os }}
     variables:
       TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-      #z这个要改
       APP_INSIGHTS_ID: $[ dependencies.prepare.outputs['setVariables.APP_INSIGHTS_ID'] ]
       ob_git_checkout: true
-      # This variable is needed to enable QEMU for ARM64 builds. https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/buildarm64containers
+      # Enable QEMU for ARM64 builds. https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/buildarm64containers
       ${{  if eq(parameters.arch, 'arm64')  }}:
         ob_enable_qemu: true
     steps:

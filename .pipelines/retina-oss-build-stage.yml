@@ -22,21 +22,14 @@ stages:
           OB_build_container: true
           ob_git_checkout: true
         steps:
-          # - checkout: self
-          #这里的问题是我不知道在哪里所以我想遵循amilcar的原则
           - checkout: ${{ parameters.retinaOSSRepoName }}
-
             fetchTags: true
-            #build number is predefined in the pipeline runtime?
-            #tag是否要保持大小写一致
           - script: |
               BUILD_NUMBER=$(Build.BuildNumber)            
-              # 获取版本号
               if [ "$(Build.Reason)" = "Schedule" ]; then
                 echo "Pipeline triggered by schedule. Using 'latest' as tag."
                 TAG="latest"
               else
-                # 检查当前 commit 是否有 tag
                 if [[ -z $(git tag --points-at HEAD) ]]; then
                   echo "No tag found on the current commit. Using commit hash as version."
                   TAG=$(git rev-parse --short HEAD)
@@ -45,25 +38,16 @@ stages:
                   TAG=$(git tag --points-at HEAD)
                 fi
               fi
-              # 输出流水线变量，因为最后的目的是传递那个变量吧，vso是为了ADO通讯用
+              # pass the ADO pipeline variable
               echo "Tag version is: $TAG"
               echo "##vso[task.setvariable variable=TAG_VERSION;isOutput=true]$TAG"
               echo "##vso[task.setvariable variable=APP_INSIGHTS_ID;isOutput=true]${{ parameters.APP_INSIGHTS_ID }}"  
-
-            name: setVariables #你看上面有一个task.setvariable，这个是为了传递变量，所以这个名字是为了传递变量的，不然你pass不过去
+            name: setVariables 
             displayName: "Set environmental variables"
             condition: always()
-
           - checkout: ${{ parameters.retinaenterpriseRepoName }}
             fetchTags: true
             displayName: "Checkout Retina Enterprise"
-          - script: |
-              echo "Contents of $(Build.SourcesDirectory):"
-              ls $(Build.SourcesDirectory)
-            name: listContents
-            displayName: "List Contents"
-            condition: always()
-
 
           - task: CopyFiles@2
             displayName: Prepare sources for docker build
@@ -76,98 +60,68 @@ stages:
               SourceFolder: $(Build.SourcesDirectory)/${{ parameters.retinaEnterpriseRepoName }}
               TargetFolder: '$(Build.SourcesDirectory)/out/${{ parameters.retinaEnterpriseRepoName }}'          
 
-
       - template: template.docker-build.yml
         parameters:
           target: agent
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
-      
       - template: template.docker-build.yml
         parameters:
           target: init
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
-
       - template: template.docker-build.yml
         parameters:
           target: operator
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
-
       - template: template.docker-build.yml
         parameters:
           target: agent
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
-        
       - template: template.docker-build.yml
         parameters:
           target: init
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
-
       - template: template.docker-build.yml
         parameters:
           target: operator
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
-        
       - template: template.docker-build.yml
         parameters:
           target: shell
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
-      
       - template: template.docker-build.yml
         parameters:
           target: kubectl
           os: linux
           arch: amd64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
-
       - template: template.docker-build.yml
         parameters:
           target: shell
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
-
       - template: template.docker-build.yml
         parameters:
           target: kubectl
           os: linux
           arch: arm64
           retinaOSSRepoName: ${{ parameters.retinaOSSRepoName }}
-          # buildSourcesDirectory: ${{ parameters.buildSourcesDirectory }}
 
-
-
-
-
-
-
-
-
-
-          
-
+#Region
       # - job: agentLinuxAmd64ImageBuild
       #   displayName: Agent Linux amd64 Image Build
       #   dependsOn: prepare  #换工作
@@ -500,7 +454,7 @@ stages:
       #         enable_service_tree_acr_path: false
       #         build_tag: $(TAG_VERSION)-linux-arm64   #每个image的命名规则是 cr/repo/name:tag  所以这就是版本号吧
       #         saveMetadataToPath: image-metadata-kubectl-retina-$(TAG_VERSION).json  #有待考证
-
+#End region
 
       - job: builderForWindowsNative
         displayName: Builder for Windows Navite Image Build
@@ -511,10 +465,8 @@ stages:
           os: windows
           hostVersion: 1ESWindows2022
         variables:
-          # TAG_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
-          # WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.WINDOWS_VERSION'] ]
+          BUILD_NUMBER: $(Build.BuildId)
           WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2022/vse2022:latest' # https://aka.ms/obpipelines/containers
-          # WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
           WINDOWS_VERSION: $[ dependencies.prepare.outputs['setVariables.TAG_VERSION'] ]
           APP_INSIGHTS_ID: $[ dependencies.prepare.outputs['setVariables.APP_INSIGHTS_ID'] ]
           ONEBRANCH_AME_ACR_LOGIN: onebranch.azurecr.io, cdpxdd5909284e0448cb9d3dee06c5f0e17f00.azurecr.io  # https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/isolatedacr
@@ -533,28 +485,28 @@ stages:
                 acr_name: cdpxdd5909284e0448cb9d3dee06c5f0e17f00.azurecr.io   #https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/isolatedacr
                 tenant: AME
 
-          # - task: onebranch.pipeline.imagebuildinfo@1
-          #   inputs:
-          #     dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
-          #     arguments: "--build-arg VERSION=$(WINDOWS_VERSION) --target=builder"
-          #     dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
-          #     repositoryName: retina-builder #your name it yourself whatever
-          #     compress: false #using the default value for late use
-          #     saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar
-          #     enable_network: true
-          #     build_tag: windows-amd64-$(WINDOWS_VERSION)
-          #     #push to isolated acr
-          #     registry: cdpxdd5909284e0448cb9d3dee06c5f0e17f00.azurecr.io
-          #     enable_isolated_acr_push: true
-          #     enable_service_tree_acr_path: false
+          - task: onebranch.pipeline.imagebuildinfo@1
+            inputs:
+              dockerFileRelPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}/windows/docker/Dockerfile.windows-cgo
+              arguments: "--build-arg VERSION=$(WINDOWS_VERSION) --target=builder"
+              dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
+              repositoryName: retina-builder 
+              compress: false 
+              saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar
+              enable_network: true
+              #set tag to unique build number to avoid conflict
+              build_tag: windows-amd64-$(BUILD_NUMBER)
+              #push to isolated acr
+              registry: cdpxdd5909284e0448cb9d3dee06c5f0e17f00.azurecr.io
+              enable_isolated_acr_push: true
+              enable_service_tree_acr_path: false
 
-
-                # Step 3: 构建 Retina Agent 镜像，直接使用 .tar 文件路径
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile.windows-native
-              arguments: "--build-arg BUILDER_IMAGE=cdpxdd5909284e0448cb9d3dee06c5f0e17f00.azurecr.io/buddy/retina-builder:windows-amd64-$(WINDOWS_VERSION) --build-arg VERSION=$(WINDOWS_VERSION) --target=final --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID)"
-              # arguments: "--build-arg BUILDER_IMAGE=$(Build.SourcesDirectory)/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar --build-arg VERSION=$(WINDOWS_VERSION) --target=final --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID)"
+              # Generated image name is $(registry)/artifact/$(serviceTreeId)/$(buildType)/$(repositoryName) where serviceTreeIdand buildType (official, buddy) are controlled by build definition onboarding and rest is controlled by onebranch.pipeline.imagebuildinfo@1 task
+              # https://eng.ms/docs/products/onebranch/build/containerbasedworkflow/dockerimagesandacr/builddockerimage
+              arguments: "--build-arg BUILDER_IMAGE=cdpxdd5909284e0448cb9d3dee06c5f0e17f00.azurecr.io/buddy/retina-builder:windows-amd64-$(BUILD_NUMBER) --build-arg VERSION=$(WINDOWS_VERSION) --target=final --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID)"
               dockerFileContextPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}
               repositoryName: retina-agent-win
               registry: ghcr.io/microsoft
@@ -562,41 +514,7 @@ stages:
               enable_service_tree_acr_path: false
               build_tag: windows-amd64-$(WINDOWS_VERSION)
               compress: true
-              saveImageToPath: retina-win-$(TAG_VERSION).tar.gz  #每次保存一个image之后，用的是tar file，然后这是命名tar file的东西
-              saveMetadataToPath: image-metadata-retina-win-$(TAG_VERSION).json  #有待考证
+              saveImageToPath: retina-win-$(TAG_VERSION).tar.gz 
+              saveMetadataToPath: image-metadata-retina-win-$(TAG_VERSION).json 
 
-
-          # - task: onebranch.pipeline.containercontrol@1
-          #   displayName: "Load Builder Image"
-          #   inputs:
-          #     command: load
-          #     imagePath: $(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
-          # - task: PowerShell@2
-          #   displayName: "Extract and Load Builder Image"
-          #   inputs:
-          #     targetType: 'inline'
-          #     script: |
-          #       $tarGzPath = "$(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz"
-          #       $tarPath = "$(Build.SourcesDirectory)/dst/drop_build_prepare/retina-builder-windows-amd64-$(WINDOWS_VERSION).tar"
-          #       Write-Host "Extracting $tarGzPath to $tarPath"
-          #       tar -xzf $tarGzPath -C "$(Build.SourcesDirectory)/dst/drop_build_prepare"
-          #       Write-Host "Loading Docker image from $tarPath"
-          #       docker load -i $tarPath
-
-
-
-          # - task: onebranch.pipeline.imagebuildinfo@1
-          #   inputs:
-          #     dockerFileRelPath: drop_build_prepare/${{ parameters.retinaOSSRepoName }}/controller/Dockerfile.windows-native
-          #     arguments: "--platform windows/amd64  --build-arg BUILDER_IMAGE=$fullBuilderImageName --build-arg VERSION=$(WINDOWS_VERSION) --build-arg APP_INSIGHTS_ID=$(APP_INSIGHTS_ID) --target final"
-          #     dockerFileContextPath: drop_build_prepare/${{ parameters.retinaEnterpriseRepoName }}
-          #     repositoryName: retina-builder
-          #     registry: ghcr.io/microsoft
-          #     compress: true
-          #     saveImageToPath: retina-builder-windows-amd64-$(WINDOWS_VERSION).tar.gz
-          #     enable_network: true
-          #     enable_service_tree_acr_path: false
-          #     build_tag: windows-amd64-$(WINDOWS_VERSION)
-              # enable_acr_push: true
-              # endpoint: $(ACR_SERVICE_CONNECTION)
 
