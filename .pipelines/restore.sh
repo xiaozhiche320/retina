@@ -38,18 +38,18 @@ echo -n $BUILD_BUILDNUMBER | tee ./EV2Specs/BuildVer.txt
 #         ls -alF $arch
 #     done
 # done
-# echo "Listing contents of ../../../../../"
-# ls ../../../../../
-# echo "Listing contents of ../../../../"
-# ls ../../../../
-# echo "Listing contents of ../../../"
-# ls ../../../
-# echo "Listing contents of ../../"
-# ls ../../
-# echo "Listing contents of ../"
-# ls ../
-# ls ../../../retina-oss-build/
-# echo "finish"
+echo "Listing contents of ../../../../../"
+ls ../../../../../
+echo "Listing contents of ../../../../"
+ls ../../../../
+echo "Listing contents of ../../../"
+ls ../../../
+echo "Listing contents of ../../"
+ls ../../
+echo "Listing contents of ../"
+ls ../
+ls ../../../retina-oss-build/
+echo "finish"
 ARCHS=("amd64" "arm64")
 
 for arch in "${ARCHS[@]}"; do
@@ -59,7 +59,7 @@ for arch in "${ARCHS[@]}"; do
 
     for image in "${IMAGE_NAMES[@]}"; do
     #这个路径很重要啊
-        ORIGINAL_DIRECTORY="../../../../retina-oss-build/drop_build_${image}_linux_${arch}_ImageBuild"
+        ORIGINAL_DIRECTORY="../../../retina-oss-build/drop_build_${image}_linux_${arch}_ImageBuild"
 
         if [ ! -d "$ORIGINAL_DIRECTORY" ]; then
             echo "Error: Directory does not exist - $ORIGINAL_DIRECTORY"
