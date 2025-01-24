@@ -56,7 +56,7 @@ ARCHS=("amd64" "arm64")
 for arch in "${ARCHS[@]}"; do
     mkdir -p "$arch"
 
-    IMAGE_NAMES=("agent" "init" "operator" "Kubectl" "shell")
+    IMAGE_NAMES=("agent" "init" "operator" "kubectl" "shell")
 
     for image in "${IMAGE_NAMES[@]}"; do
     #这个路径很重要啊
