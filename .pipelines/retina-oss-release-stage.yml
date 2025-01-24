@@ -44,7 +44,7 @@ stages:
     - checkout: ${{ parameters.retinaOSSRepoName }}
     - task: Bash@3
       inputs:
-        filePath: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}/.pipelines/restore.sh
+        filePath: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}/.pipelines/Shell/Restore.sh
         workingDirectory: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}/.pipelines
 
 # Test Stage

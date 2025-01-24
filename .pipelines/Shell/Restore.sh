@@ -3,6 +3,7 @@
 # https://msazure.visualstudio.com/Azure-Express/_git/Samples?path=%2FServiceGroupRoot&version=GBmaster
 # Debugging information
 echo "Current directory: $(pwd)"
+ehco "hello right here"
 ls -l
 # Check if Shell directory exists
 # if [ ! -d "./Shell" ]; then
