@@ -91,36 +91,6 @@ find . -type f -name "*.tar" | while read -r tarball; do
     echo "$ACR_URL/$image_details" >> "./manifests/$image_name.txt"
 done
 
-# Traverse the directory containing the manifest files
-# find ./manifests -type f -name "*.txt" | while read -r manifest_file; do
-#     # Read the image details from the manifest file into an array
-#     mapfile -t image_details_array < "$manifest_file"
-    
-#     # Extract the common git sha tag
-#     git_sha_tag="${image_details_array[0]#*:}"
-#     git_sha_tag="${git_sha_tag%-*-*}"  # Remove the platform suffix
-    
-#     if [[ $git_sha_tag == *"windows"* ]]; then
-#         # Handle the case for Windows image names/tags
-#         git_sha_tag="${git_sha_tag%-*}"
-#     fi
-    
-#     # Extract the image name from the manifest file name
-#     image_name=$(basename "$manifest_file" .txt)
-    
-#     # Create a multi-platform image manifest using crane
-#     crane append -t "$ACR_URL/$image_name:$git_sha_tag" \
-#         $(for image_detail in "${image_details_array[@]}"; do echo "--base $image_detail "; done) \
-#         -f /dev/null \
-#         --set-base-image-annotations
-#     # Define the full name of the destination image
-#     DEST_IMAGE_FULL_NAME="$DESTINATION_ACR_NAME.azurecr.io/$ACR_PATH/$IMAGE_NAME:$TAG_NAME"
-#     DEST_IMAGE_FULL_NAME="$ACR_URL/some variable here"
-    
-
-#     crane index append --docker-empty-base -m $DEST_IMAGE_FULL_NAME-linux-amd64 -m $DEST_IMAGE_FULL_NAME-linux-arm64 -t $DEST_IMAGE_FULL_NAME
-
-# done
 find ./manifests -type f -name "*.txt" | while read -r manifest_file; do
     # Read the image details from the manifest file into an array
     mapfile -t image_details_array < "$manifest_file"
@@ -138,7 +108,7 @@ find ./manifests -type f -name "*.txt" | while read -r manifest_file; do
     # Construct the `crane index append` command dynamically
     crane index append --docker-empty-base \
         $(for image_detail in "${image_details_array[@]}"; do 
-            arch="${image_detail##*-}"  # Extract architecture suffix
+            # arch="${image_detail##*-}"  # Extract architecture suffix
             echo "-m $image_detail"
         done) \
         -t "$DEST_IMAGE_FULL_NAME"
