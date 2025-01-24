@@ -102,7 +102,7 @@ mv ./amd64/* ./multi_arch_image/
 echo "Contents of Arm64 folder before moving:"
 ls -l ./arm64/
 # 将 Arm64 文件夹中的内容移动到 multi_arch_image 目录
-mv ./Arm64/* ./multi_arch_image/
+mv ./arm64/* ./multi_arch_image/
 
 # package the folder output to tar since the rollout parameter only accept a specifc file
 tar -cvf multi_arch_image.tar ./multi_arch_image
