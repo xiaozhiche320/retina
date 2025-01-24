@@ -103,7 +103,6 @@ find ./manifests -type f -name "*.txt" | while read -r manifest_file; do
     # Construct the `crane index append` command dynamically
     crane index append --docker-empty-base \
         $(for image_detail in "${image_details_array[@]}"; do 
-            # arch="${image_detail##*-}"  # Extract architecture suffix
             echo "-m $image_detail"
         done) \
         -t "$DEST_IMAGE_FULL_NAME"
