@@ -4,7 +4,6 @@ parameters:
   #define in runtime
 - name: pipelineWorkspace
   type: string
-  #新增变量
 - name: retinaOSSRepoName
   type: string
 
@@ -36,19 +35,15 @@ stages:
     pool:
       type: linux
     variables:
-    #更改这里的路径
       ob_outputDirectory: '$(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}/.pipelines'
       ob_git_fetchDepth: -1
       ob_git_fetchTags: true
     steps:
     - download: ${{ parameters.artifactPipelineName }}
       displayName: Download Build Artifacts
-    #只有这样才能找到代码
     - checkout: ${{ parameters.retinaOSSRepoName }}
     - task: Bash@3
       inputs:
-        # filePath: $(Build.SourcesDirectory)/.devops/Retina-OSS-Ev2/restore.sh
-        # workingDirectory: $(Build.SourcesDirectory)/.devops/Retina-OSS-Ev2
         filePath: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}/.pipelines/restore.sh
         workingDirectory: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}/.pipelines
 

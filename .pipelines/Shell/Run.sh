@@ -65,11 +65,6 @@ extract_image_details() {
     echo "$name:$tag"
 }
 
-    # retina-agent-d56789-linux-amd64.tar  basename 去掉文件路径，如果有的话，保留文件名 所以还是这个
-    # image_details 去掉tar并且换名字retina-agent:d56789-linux-amd64
-    # image_name=retina-agent
-    # git sha tag d56789-linux-amd64 -- 再去掉平台后缀
-
 # Traverse the directory and process each tarball
 find . -type f -name "*.tar" | while read -r tarball; do
     # Extract image name and tag
