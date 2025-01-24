@@ -3,7 +3,7 @@
 # https://msazure.visualstudio.com/Azure-Express/_git/Samples?path=%2FServiceGroupRoot&version=GBmaster
 # Debugging information
 echo "Current directory: $(pwd)"
-ehco "hello right here"
+echo "hello right here"
 ls -l
 # Check if Shell directory exists
 # if [ ! -d "./Shell" ]; then
@@ -39,18 +39,18 @@ echo -n $BUILD_BUILDNUMBER | tee ./EV2Specs/BuildVer.txt
 #         ls -alF $arch
 #     done
 # done
-# echo "Listing contents of ../../../../../"
-# ls ../../../../../
-# echo "Listing contents of ../../../../"
-# ls ../../../../
-# echo "Listing contents of ../../../"
-# ls ../../../
-# echo "Listing contents of ../../"
-# ls ../../
-# echo "Listing contents of ../"
-# ls ../
-# ls ../../../retina-oss-build/
-# echo "finish"
+echo "Listing contents of ../../../../../"
+ls ../../../../../
+echo "Listing contents of ../../../../"
+ls ../../../../
+echo "Listing contents of ../../../"
+ls ../../../
+echo "Listing contents of ../../"
+ls ../../
+echo "Listing contents of ../"
+ls ../
+ls ../../../retina-oss-build/
+echo "finish"
 ARCHS=("amd64" "arm64")
 
 for arch in "${ARCHS[@]}"; do
@@ -60,7 +60,7 @@ for arch in "${ARCHS[@]}"; do
 
     for image in "${IMAGE_NAMES[@]}"; do
     #这个路径很重要啊
-        ORIGINAL_DIRECTORY="../../../../retina-oss-build/drop_build_${image}_linux_${arch}_ImageBuild"
+        ORIGINAL_DIRECTORY="../../../retina-oss-build/drop_build_${image}_linux_${arch}_ImageBuild"
 
         if [ ! -d "$ORIGINAL_DIRECTORY" ]; then
             echo "Error: Directory does not exist - $ORIGINAL_DIRECTORY"
@@ -103,7 +103,7 @@ mv ./amd64/* ./multi_arch_image/
 echo "Contents of Arm64 folder before moving:"
 ls -l ./arm64/
 # 将 Arm64 文件夹中的内容移动到 multi_arch_image 目录
-mv ./Arm64/* ./multi_arch_image/
+mv ./arm64/* ./multi_arch_image/
 
 # package the folder output to tar since the rollout parameter only accept a specifc file
 tar -cvf multi_arch_image.tar ./multi_arch_image
