@@ -44,6 +44,7 @@ jobs:
           registry: ${{ parameters.registry }}
           compress: true
           enable_network: true
+          enable_pull: true
           enable_service_tree_acr_path: false
           build_tag: $(TAG_VERSION)-${{ parameters.os }}-${{ parameters.arch }}    
           ${{ if eq(parameters.target, 'agent') }}:
