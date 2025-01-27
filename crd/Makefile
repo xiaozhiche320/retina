@@ -11,7 +11,8 @@ else
 endif
 
 TOOLS_DIR = $(REPO_ROOT)/hack/tools
-TOOLS_BIN_DIR = $(TOOLS_DIR)/bin
+# TOOLS_BIN_DIR = $(TOOLS_DIR)/bin
+TOOLS_BIN_DIR = $(TOOLS_DIR)
 CONTROLLER_GEN = $(TOOLS_BIN_DIR)/controller-gen
 HELM_CRD_DIR = $(REPO_ROOT)/deploy/legacy/manifests/controller/helm/retina/crds
 
