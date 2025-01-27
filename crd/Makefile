@@ -2,7 +2,7 @@
 
 # REPO_ROOT = $(shell git rev-parse --show-toplevel)
 # Manually set REPO_ROOT to the current directory
-REPO_ROOT = /workspaces
+REPO_ROOT = ..
 
 TOOLS_DIR = $(REPO_ROOT)/hack/tools
 TOOLS_BIN_DIR = $(TOOLS_DIR)/bin
