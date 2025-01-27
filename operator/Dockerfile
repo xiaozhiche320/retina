@@ -14,7 +14,7 @@ ENV GOOS=${GOOS}
 ARG GOARCH=amd64
 ENV GOARCH=${GOARCH}
 
-# RUN make manifests
+RUN make manifests
 RUN --mount=type=cache,target="/root/.cache/go-build" \
 	GOOS=linux GOARCH=amd64 go build \
 	-ldflags "-X github.com/microsoft/retina/internal/buildinfo.Version="$VERSION" \
