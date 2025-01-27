@@ -3,6 +3,7 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/oss/go/microsoft/golang@sha256:
 
 # Install jq
 RUN tdnf install -y jq
+RUN go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.14.0
 
 ARG VERSION
 ARG APP_INSIGHTS_ID
