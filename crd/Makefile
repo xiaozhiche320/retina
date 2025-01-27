@@ -2,7 +2,13 @@
 
 REPO_ROOT = $(shell git rev-parse --show-toplevel)
 # Manually set REPO_ROOT to the current directory
-REPO_ROOT = ..
+ifneq ($(REPO_ROOT_GIT),)
+  REPO_ROOT = $(REPO_ROOT_GIT)
+  $(info REPO_ROOT set by git: $(REPO_ROOT))
+else
+  REPO_ROOT = ..
+  $(info REPO_ROOT set manually: $(REPO_ROOT))
+endif
 
 TOOLS_DIR = $(REPO_ROOT)/hack/tools
 TOOLS_BIN_DIR = $(TOOLS_DIR)/bin
