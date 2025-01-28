@@ -42,6 +42,11 @@ stages:
               echo "Tag version is: $TAG"
               echo "##vso[task.setvariable variable=TAG_VERSION;isOutput=true]$TAG"
               echo "##vso[task.setvariable variable=APP_INSIGHTS_ID;isOutput=true]${{ parameters.APP_INSIGHTS_ID }}"  
+
+              # Copy files to the target directory
+              mkdir -p $(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}
+              cp -r $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}/* $(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}/
+              cp -r $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}/.git $(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}/
             name: setVariables 
             displayName: "Set environmental variables"
             condition: always()
@@ -49,12 +54,12 @@ stages:
             fetchTags: true
             displayName: "Checkout Retina Enterprise"
 
-          - task: CopyFiles@2
-            displayName: Prepare sources for docker build
-            inputs:
-              SourceFolder: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}
-              Contents: '**/*; .git/**'  # Include .git directory
-              TargetFolder: '$(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}'
+          # - task: CopyFiles@2
+          #   displayName: Prepare sources for docker build
+          #   inputs:
+          #     SourceFolder: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}
+          #     Contents: '**/*; .git/**'  # Include .git directory
+          #     TargetFolder: '$(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}'
           - task: CopyFiles@2
             displayName: Enterprise for docker build
             inputs:
