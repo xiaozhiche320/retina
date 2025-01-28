@@ -16,6 +16,9 @@ ENV GOOS=${GOOS}
 ARG GOARCH=amd64
 ENV GOARCH=${GOARCH}
 
+# Build controller-gen
+RUN cd ../hack/tools && go mod download && go build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen
+
 RUN make manifests
 RUN --mount=type=cache,target="/root/.cache/go-build" \
 	GOOS=linux GOARCH=amd64 go build \
