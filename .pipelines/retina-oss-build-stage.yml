@@ -19,7 +19,7 @@ stages:
           type: linux
         variables:
           # ob_outputDirectory: $(Build.SourcesDirectory)/out
-          ob_outputDirectory: $(Build.SourcesDirectory)/out
+          ob_outputDirectory: $(Build.SourcesDirectory)
           OB_build_container: true
           ob_git_checkout: true
         steps:
@@ -39,12 +39,21 @@ stages:
                   TAG=$(git tag --points-at HEAD)
                 fi
               fi
+
+
+
+
               # Check if .git directory exists in the target directory
               if [ -d "$(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}/.git" ]; then
                 echo ".git directory exists in the source directory."
               else
                 echo ".git directory does not exist in the source directory."
               fi
+
+              # Change to the target directory and check Git status
+              cd $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}
+              echo "Current directory: $(pwd)"
+              git status
 
               # pass the ADO pipeline variable
               echo "Tag version is: $TAG"
@@ -62,6 +71,11 @@ stages:
               # else
               #   echo ".git directory does not exist in the target directory."
               # fi
+
+              # Change to the target directory and check Git status
+              cd $(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}
+              echo "Current directory: $(pwd)"
+              git status
             name: setVariables 
             displayName: "Set environmental variables"
             condition: always()
@@ -69,12 +83,11 @@ stages:
           #   fetchTags: true
           #   displayName: "Checkout Retina Enterprise"
 
-          - task: CopyFiles@2
-            displayName: Prepare sources for docker build
-            inputs:
-              SourceFolder: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}
-              Contents: '**/*; .git/**'  # Include .git directory
-              TargetFolder: '$(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}'
+          # - task: CopyFiles@2
+          #   displayName: Prepare sources for docker build
+          #   inputs:
+          #     SourceFolder: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}
+          #     TargetFolder: '$(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}'
           # - task: CopyFiles@2
           #   displayName: Enterprise for docker build
           #   inputs:
