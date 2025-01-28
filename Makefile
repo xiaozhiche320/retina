@@ -433,7 +433,6 @@ coverage: # Code coverage.
 .PHONY: manifests
 manifests: 
 	cd crd && make manifests && make generate
-	run cd crd
 
 # Fetch the latest tag from the GitHub
 LATEST_TAG := $(shell curl -s https://api.github.com/repos/microsoft/retina/releases | jq -r '.[0].name')
