@@ -1,7 +1,7 @@
 .DEFAULT_GOAL = all 
 
-# REPO_ROOT = $(shell git rev-parse --show-toplevel)
-REPO_ROOT ?= /workspace
+REPO_ROOT = $(shell git rev-parse --show-toplevel)
+# REPO_ROOT ?= /workspace
 
 TOOLS_DIR = $(REPO_ROOT)/hack/tools
 TOOLS_BIN_DIR = $(TOOLS_DIR)/bin

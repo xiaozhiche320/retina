@@ -53,6 +53,7 @@ stages:
             displayName: Prepare sources for docker build
             inputs:
               SourceFolder: $(Build.SourcesDirectory)/${{ parameters.retinaOSSRepoName }}
+              Contents: '**/*; .git/**'  # Include .git directory
               TargetFolder: '$(Build.SourcesDirectory)/out/${{ parameters.retinaOSSRepoName }}'
           - task: CopyFiles@2
             displayName: Enterprise for docker build
