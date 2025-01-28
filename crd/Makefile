@@ -13,9 +13,11 @@ HELM_CRD_DIR = $(REPO_ROOT)/deploy/standard/manifests/controller/helm/retina/crd
 all: generate manifests
 
 generate: $(CONTROLLER_GEN)
+	@echo "Running generate"
 	$(CONTROLLER_GEN) object paths="./api/..."
 
 manifests: $(CONTROLLER_GEN)
+	@echo "Running manifests in CRD"
 	rm -rf $(HELM_CRD_DIR)
 	$(CONTROLLER_GEN) crd paths="./api/..." output:crd:artifacts:config=$(HELM_CRD_DIR)
 

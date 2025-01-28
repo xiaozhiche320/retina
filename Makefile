@@ -435,6 +435,7 @@ coverage: # Code coverage.
 
 .PHONY: manifests
 manifests: 
+	@echo "Running make manifests in /workspace"
 	cd crd && make manifests && make generate
 
 # Fetch the latest tag from the GitHub
