@@ -9,8 +9,6 @@ ARG APP_INSIGHTS_ID
 WORKDIR /workspace
 RUN ls -la
 ADD . .
-# 指定 `git-src` 作为构建上下文，获取 `.git` 目录
-COPY --from=git-src /workspace/.git .git
 RUN echo "Contents of /workspace after COPY:" && ls -la /workspace
 RUN ls -la
 
