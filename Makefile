@@ -120,8 +120,8 @@ $(GOLANGCI_LINT): $(TOOLS_DIR)/go.mod
 
 golangci-lint: $(GOLANGCI_LINT) ## Build golangci-lint
 
-$(CONTROLLER_GEN): $(TOOLS_DIR)/go.mod
-	cd $(TOOLS_DIR); go mod download; go build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen
+$(CONTROLLER_GEN): ./hack/tools/go.mod
+	cd ./hack/tools; go mod download; go build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen
 
 goreleaser: $(GORELEASER) ## Build goreleaser
 
