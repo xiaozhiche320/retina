@@ -7,7 +7,10 @@ ARG VERSION
 ARG APP_INSIGHTS_ID
 
 WORKDIR /workspace
+RUN ls -la
 COPY . .
+RUN echo "Contents of /workspace after COPY:" && ls -la /workspace
+RUN ls -la
 
 # Default linux/architecture.
 ARG GOOS=linux
