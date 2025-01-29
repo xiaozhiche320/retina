@@ -26,9 +26,12 @@ manifests: $(CONTROLLER_GEN)
 # $(CONTROLLER_GEN):
 # 	@make -C $(REPO_ROOT) $(CONTROLLER_GEN)
 
-$(CONTROLLER_GEN):
-	@cd $(REPO_ROOT) && make $(CONTROLLER_GEN)
+# $(CONTROLLER_GEN):
+# 	@cd $(REPO_ROOT) && make $(CONTROLLER_GEN)
 
 # $(CONTROLLER_GEN): $(TOOLS_DIR)/go.mod
 # 	@echo "Building controller-gen"
 # 	cd $(TOOLS_DIR); go mod download; go build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen
+
+$(CONTROLLER_GEN):
+	@make -C $(REPO_ROOT) $(CONTROLLER_GEN) || (cd $(TOOLS_DIR); go mod download; go build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen)
