@@ -1,16 +1,13 @@
 # mcr.microsoft.com/oss/go/microsoft/golang:1.23.4-cbl-mariner2.0
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/oss/go/microsoft/golang@sha256:88225e171f29fe5f1f6ffca8eb659535b19b253354e43e1f4fc8a9bc67615ca1 AS builder
 # Install jq
-RUN tdnf install -y jq
+RUN tdnf install -y git jq
 
 ARG VERSION
 ARG APP_INSIGHTS_ID
 
 WORKDIR /workspace
-RUN ls -la
-ADD . .
-RUN echo "Contents of /workspace after COPY:" && ls -la /workspace
-RUN ls -la
+COPY . .
 
 # Default linux/architecture.
 ARG GOOS=linux
@@ -18,13 +15,6 @@ ENV GOOS=${GOOS}
 
 ARG GOARCH=amd64
 ENV GOARCH=${GOARCH}
-
-# Build controller-gen
-# RUN echo "Starting to build controller-gen" && \
-#     cd hack/tools && \
-#     go mod download && \
-#     go build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen && \
-#     echo "Finished building controller-gen"
 
 RUN make manifests
 RUN --mount=type=cache,target="/root/.cache/go-build" \

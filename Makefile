@@ -7,10 +7,6 @@ RMDIR := rm -rf
 GIT_CURRENT_BRANCH_NAME	:= $(shell git rev-parse --abbrev-ref HEAD) 
 
 REPO_ROOT = $(shell git rev-parse --show-toplevel)
-# REPO_ROOT ?= ..
-# 尝试运行 git 命令，如果失败则设置 REPO_ROOT 为空
-# REPO_ROOT := $(shell (git rev-parse --show-toplevel 2>/dev/null || echo ""))
-
 ifndef TAG
 	TAG ?= $(shell git describe --tags --always)
 endif
@@ -92,11 +88,7 @@ help: ## Display this help
 
 ##@ Tools 
 
-ifeq ($(REPO_ROOT),)
-  TOOLS_DIR := ./hack/tools
-else
-  TOOLS_DIR := $(REPO_ROOT)/hack/tools
-endif
+TOOLS_DIR := $(REPO_ROOT)/hack/tools
 TOOLS_BIN_DIR	= $(TOOLS_DIR)/bin
 
 GOFUMPT			= $(TOOLS_BIN_DIR)/gofumpt
@@ -120,7 +112,7 @@ $(GOLANGCI_LINT): $(TOOLS_DIR)/go.mod
 
 golangci-lint: $(GOLANGCI_LINT) ## Build golangci-lint
 
-$(CONTROLLER_GEN): ./hack/tools/go.mod
+$(CONTROLLER_GEN): $(TOOLS_DIR)/go.mod
 	cd ./hack/tools; go mod download; go build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen
 
 goreleaser: $(GORELEASER) ## Build goreleaser

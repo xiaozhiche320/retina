@@ -1,8 +1,7 @@
 .DEFAULT_GOAL = all 
 
 # REPO_ROOT = $(shell git rev-parse --show-toplevel)
-# REPO_ROOT ?= ..
-# 尝试运行 git 命令，如果失败则设置 REPO_ROOT 为空
+
 REPO_ROOT := $(shell (git rev-parse --show-toplevel 2>/dev/null || echo ".."))
 
 TOOLS_DIR = $(REPO_ROOT)/hack/tools
@@ -25,13 +24,6 @@ manifests: $(CONTROLLER_GEN)
 
 # $(CONTROLLER_GEN):
 # 	@make -C $(REPO_ROOT) $(CONTROLLER_GEN)
-
-# $(CONTROLLER_GEN):
-# 	@cd $(REPO_ROOT) && make $(CONTROLLER_GEN)
-
-# $(CONTROLLER_GEN): $(TOOLS_DIR)/go.mod
-# 	@echo "Building controller-gen"
-# 	cd $(TOOLS_DIR); go mod download; go build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen
 
 $(CONTROLLER_GEN):
 	@make -C $(REPO_ROOT) $(CONTROLLER_GEN) || (cd $(TOOLS_DIR); go mod download; go build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen)
