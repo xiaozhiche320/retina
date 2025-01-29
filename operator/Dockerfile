@@ -8,7 +8,7 @@ ARG APP_INSIGHTS_ID
 
 WORKDIR /workspace
 RUN ls -la
-COPY . .
+ADD . .
 RUN echo "Contents of /workspace after COPY:" && ls -la /workspace
 RUN ls -la
 
