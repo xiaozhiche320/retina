@@ -1,7 +1,14 @@
 .DEFAULT_GOAL = all 
 
 # REPO_ROOT = $(shell git rev-parse --show-toplevel)
-REPO_ROOT ?= ..
+# REPO_ROOT ?= ..
+# 尝试运行 git 命令，如果失败则设置 REPO_ROOT 为空
+REPO_ROOT := $(shell (git rev-parse --show-toplevel 2>/dev/null || echo ""))
+
+# 如果 REPO_ROOT 为空，则设置为当前目录的上一级目录
+ifeq ($(REPO_ROOT),)
+  REPO_ROOT := ..
+endif
 
 TOOLS_DIR = $(REPO_ROOT)/hack/tools
 TOOLS_BIN_DIR = $(TOOLS_DIR)/bin

@@ -7,7 +7,15 @@ RMDIR := rm -rf
 GIT_CURRENT_BRANCH_NAME	:= $(shell git rev-parse --abbrev-ref HEAD) 
 
 # REPO_ROOT = $(shell git rev-parse --show-toplevel)
-REPO_ROOT ?= ..
+# REPO_ROOT ?= ..
+# 尝试运行 git 命令，如果失败则设置 REPO_ROOT 为空
+REPO_ROOT := $(shell (git rev-parse --show-toplevel 2>/dev/null || echo ""))
+
+# 如果 REPO_ROOT 为空，则设置为当前目录
+ifeq ($(REPO_ROOT),)
+  REPO_ROOT := .
+endif
+
 ifndef TAG
 	TAG ?= $(shell git describe --tags --always)
 endif
