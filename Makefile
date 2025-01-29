@@ -11,11 +11,6 @@ GIT_CURRENT_BRANCH_NAME	:= $(shell git rev-parse --abbrev-ref HEAD)
 # 尝试运行 git 命令，如果失败则设置 REPO_ROOT 为空
 REPO_ROOT := $(shell (git rev-parse --show-toplevel 2>/dev/null || echo ""))
 
-# 如果 REPO_ROOT 为空，则设置为当前目录
-ifeq ($(REPO_ROOT),)
-  REPO_ROOT := .
-endif
-
 ifndef TAG
 	TAG ?= $(shell git describe --tags --always)
 endif
@@ -97,7 +92,11 @@ help: ## Display this help
 
 ##@ Tools 
 
-TOOLS_DIR		= $(REPO_ROOT)/hack/tools
+ifeq ($(REPO_ROOT),)
+  TOOLS_DIR := ./hack/tools
+else
+  TOOLS_DIR := $(REPO_ROOT)/hack/tools
+endif
 TOOLS_BIN_DIR	= $(TOOLS_DIR)/bin
 
 GOFUMPT			= $(TOOLS_BIN_DIR)/gofumpt
