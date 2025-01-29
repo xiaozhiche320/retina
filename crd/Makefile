@@ -23,11 +23,11 @@ manifests: $(CONTROLLER_GEN)
 	rm -rf $(HELM_CRD_DIR)
 	$(CONTROLLER_GEN) crd paths="./api/..." output:crd:artifacts:config=$(HELM_CRD_DIR)
 
-$(CONTROLLER_GEN):
-	@make -C $(REPO_ROOT) $(CONTROLLER_GEN)
-
 # $(CONTROLLER_GEN):
-#     @cd $(REPO_ROOT) && make $(CONTROLLER_GEN)
+# 	@make -C $(REPO_ROOT) $(CONTROLLER_GEN)
+
+$(CONTROLLER_GEN):
+	@cd $(REPO_ROOT) && make $(CONTROLLER_GEN)
 
 # $(CONTROLLER_GEN): $(TOOLS_DIR)/go.mod
 # 	@echo "Building controller-gen"

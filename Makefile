@@ -6,10 +6,10 @@ RMDIR := rm -rf
 ## Globals
 GIT_CURRENT_BRANCH_NAME	:= $(shell git rev-parse --abbrev-ref HEAD) 
 
-# REPO_ROOT = $(shell git rev-parse --show-toplevel)
+REPO_ROOT = $(shell git rev-parse --show-toplevel)
 # REPO_ROOT ?= ..
 # 尝试运行 git 命令，如果失败则设置 REPO_ROOT 为空
-REPO_ROOT := $(shell (git rev-parse --show-toplevel 2>/dev/null || echo ""))
+# REPO_ROOT := $(shell (git rev-parse --show-toplevel 2>/dev/null || echo ""))
 
 ifndef TAG
 	TAG ?= $(shell git describe --tags --always)
